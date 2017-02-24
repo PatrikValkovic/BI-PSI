@@ -1,12 +1,17 @@
-/**
- * Created by patri on 23.02.2017.
- */
+/// <reference path="node_modules/@types/node/index.d.ts" />
+
+let net = require('net');
 
 class App {
     public run(): void {
-        console.log("Hello world");
+        let server = net.createServer({}, function (socket: net.Socket) {
+            console.log("Socket connected");
+        });
+        server.listen(1111, 'localhost', function () {
+            console.log("Server is running");
+        });
     }
 }
 
-var app = new App();
+let app = new App();
 app.run();
