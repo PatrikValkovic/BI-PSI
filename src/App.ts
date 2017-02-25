@@ -16,15 +16,18 @@ class App {
                 function (callback) {
                     c.getPosition(callback);
                 },
-                function (callback) {
-                    c.rotate(callback);
+                function(callback){
+                    c.navigate(callback);
                 },
                 function(callback){
-                    callback(32);
+                    c.getMessage(callback);
                 }
             ], function (err, res) {
                 if (err)
-                    ex.SendError(socket, err);
+                    return ex.SendError(socket, err);
+                console.log("Robot finished his work");
+                socket.end();
+                socket.destroy();
             });
         });
 

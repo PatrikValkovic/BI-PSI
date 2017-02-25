@@ -24,7 +24,8 @@ export class Client {
 
     private factoryCreateTimeout(callback, timeoutLength) {
         let _this = this;
-        return function (inCallback) {
+        return function (inCallback: Function = () => {
+        }) {
             if (_this.timeout !== null)
                 return inCallback();
             _this.timeout = setTimeout(function () {
@@ -36,7 +37,8 @@ export class Client {
 
     private factoryDeleteTimeout() {
         let _this = this;
-        return function (inCallback) {
+        return function (inCallback: Function = () => {
+        }) {
             if (_this.timeout === null)
                 return inCallback();
             clearTimeout(_this.timeout);
@@ -273,26 +275,84 @@ export class Client {
     public navigate(callback) {
         let _this = this;
 
+        let _rotate = false;
+
         let createTimeout: Function = this.factoryCreateTimeout(callback, 1000);
         let deleteTimeout: Function = this.factoryDeleteTimeout();
 
-        let createTest = function(){
-            return function(){
+        let createTest = function () {
+            return function () {
                 return _this.position.x === 0 && _this.position.y === 0;
             };
         };
 
-        let createFn = function(){
-            return function(callback){
+        let createFn = function () {
+            return function (callback) {
 
-                async.series([],function(){
-                    deleteTimeout(function(){});
+                async.series([
+                    function (callback) {
+                        CommunicationFacade.ServerMove(_this.socket, callback);
+                    },
+                    createTimeout,
+                    function (callback) {
+                        _this.reader.maxLength = 12;
+                        _this.reader.setCallback(function (text) {
+                            if (text === Errors.overLength)
+                                callback(Errors.syntax);
+
+                            let position = Client.parsePosition(text);
+                            if (position === null)
+                                return callback(Errors.syntax);
+
+                            if ((position.x === 0 && _this.position.x !== 0) ||
+                                (position.y === 0 && _this.position.y !== 0))
+                                _rotate = true;
+
+                            _this.position = position;
+                            callback();
+                        });
+                    },
+                    deleteTimeout,
+                    function (callback) {
+                        if (_rotate)
+                            _this.rotate(callback);
+                    }
+                ], function () {
+                    deleteTimeout(function () {
+                    });
                     callback();
                 });
-
             }
         };
 
-        async.until(createTest(),createFn(),callback);
+        async.until(createTest(), createFn(), callback);
+    }
+
+    public getMessage(callback) {
+        let _this = this;
+
+        let createTimeout = this.factoryCreateTimeout(callback, 1000);
+        let deleteTimeout = this.factoryDeleteTimeout();
+
+        async.series([
+            function(callback){
+                CommunicationFacade.ServerPickUp(_this.socket,callback);
+            },
+            createTimeout,
+            function(callback){
+                _this.reader.maxLength = 100;
+                _this.reader.setCallback(function(text){
+                    if(text === Errors.overLength)
+                        callback(Errors.syntax);
+
+                    console.log("Robot pickuped: " + text);
+                    callback();
+                });
+            },
+            deleteTimeout,
+        ], function (err, data) {
+            deleteTimeout();
+            callback(err, data);
+        });
     }
 }
