@@ -2,8 +2,6 @@ import * as async from 'async';
 import * as net from 'net';
 import {Client} from './Client';
 import * as ex from "./Exceptions";
-import * as cons from './Constants';
-import {CommunicationFacade} from "./CommunicationFacade";
 
 class App {
     public run(): void {
