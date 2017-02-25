@@ -37,9 +37,6 @@ export class Client {
     private factoryDeleteTimeout() {
         let _this = this;
         return function (inCallback) {
-            if (inCallback === null)
-                inCallback = function () {
-                };
             if (_this.timeout === null)
                 return inCallback();
             clearTimeout(_this.timeout);
@@ -261,9 +258,10 @@ export class Client {
                             callback();
                         });
                     },
-                    deleteTimeout(),
+                    deleteTimeout,
                 ], function (err, data) {
-                    deleteTimeout();
+                    deleteTimeout(function () {
+                    });
                     callback(err, data);
                 });
             };

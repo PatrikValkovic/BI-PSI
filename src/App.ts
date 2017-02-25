@@ -18,6 +18,9 @@ class App {
                 },
                 function (callback) {
                     c.rotate(callback);
+                },
+                function(callback){
+                    callback(32);
                 }
             ], function (err, res) {
                 if (err)
