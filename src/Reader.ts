@@ -17,7 +17,7 @@ export class Reader {
 
     public appendText(text : string)
     {
-        this.appendText(text);
+        this.buffer = this.buffer + text;
         this.callback();
     }
 }
