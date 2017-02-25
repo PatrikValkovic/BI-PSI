@@ -2,6 +2,7 @@ import * as async from 'async';
 import * as net from 'net';
 import {Client} from './Client';
 import * as ex from "./Exceptions";
+import * as cons from './Constants';
 import {CommunicationFacade} from "./CommunicationFacade";
 
 class App {
@@ -11,32 +12,32 @@ class App {
             let c: Client = new Client(socket);
 
             async.series([
-                function (callback: Function) {
-                    c.authenticate(callback);
-                },
-                function (callback) {
-                    c.navigate(callback);
-                }
-            ], function (err, res) {
+                             function (callback: Function) {
+                                 c.authenticate(callback);
+                             },
+                             function (callback) {
+                                 c.navigate(callback);
+                             }
+                         ], function (err, res) {
                 if (err) {
                     let delSocket = function () {
                         socket.end();
                         socket.destroy();
                     };
                     switch (err) {
-                        case ex.LOGIC:
+                        case cons.Errors.logic:
                             CommunicationFacade.ServerLogicError(socket, delSocket);
                             console.log("Socket deleted because of logic error");
                             break;
-                        case ex.SYNTAX:
+                        case cons.Errors.syntax:
                             CommunicationFacade.ServerSyntaxError(socket, delSocket);
                             console.log("Socket deleted because of syntax error");
                             break;
-                        case ex.TIMEOUT:
+                        case cons.Errors.timeout:
                             console.log("Socket deleted because of timeout");
                             delSocket();
                             break;
-                        case ex.LOGIN:
+                        case cons.Errors.login:
                             CommunicationFacade.ServerLoginFailed(socket, delSocket);
                             console.log("Socket deleted because of login error");
                             break;
