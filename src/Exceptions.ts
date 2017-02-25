@@ -1,33 +1,29 @@
+import * as cons from './Constants';
+
 export class Exception {
 }
 
-export const TIMEOUT = 'timeout';
-export const LOGIN = 'login';
-export const SYNTAX = 'syntax';
-export const LOGIC = 'logic';
-
-
 export class TimeoutException extends Exception {
-    public getType(): string {
-        return TIMEOUT;
+    public getType(): number {
+        return cons.Errors.timeout;
     }
 }
 
 export class LoginException extends Exception {
-    public getType(): string {
-        return LOGIN;
+    public getType(): number {
+        return cons.Errors.login;
     }
 }
 
 export class SyntaxException extends Exception {
-    public getType(): string {
-        return SYNTAX;
+    public getType(): number {
+        return cons.Errors.syntax;
     }
 }
 
 export class LogicException extends Exception {
-    public getType(): string {
-        return LOGIC;
+    public getType(): number {
+        return cons.Errors.logic;
     }
 }
 
