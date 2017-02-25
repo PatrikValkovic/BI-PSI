@@ -188,6 +188,30 @@ export class Client {
     }
 
     public rotate(callback) {
+        let _this = this;
 
+        let createTimeout = this.factoryCreateTimeout(callback, 1000);
+        let deleteTimeout = this.factoryDeleteTimeout();
+
+        let createTest = function(){
+            return function(){
+                if(_this.position.x < 0) //must be right
+                    return _this.position.direction === Direction.left;
+                if(_this.position.x > 0) //must be left
+                    return _this.position.direction === Direction.right;
+                if(_this.position.y < 0) //must be up
+                    return _this.position.direction === Direction.up;
+                if(_this.position.y > 0) //must be down
+                    return _this.position.direction === Direction.down;
+            };
+        };
+
+        let createRotate = function() {
+            return function(callback){
+
+            };
+        };
+
+        async.until(createTest(),createRotate(),callback);
     }
 }
