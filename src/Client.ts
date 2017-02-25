@@ -1,6 +1,7 @@
 import * as net from 'net';
 import * as async from 'async';
 import * as exception from './Exceptions';
+import {Errors} from './Constants';
 import {CommunicationFacade} from './CommunicationFacade';
 import {Reader} from "./Reader";
 
@@ -29,7 +30,7 @@ export class Client {
             if (_this.timeout !== null)
                 return inCallback();
             _this.timeout = setTimeout(function () {
-                callback(exception.TIMEOUT);
+                callback(Errors.timeout);
             }, timeoutLength);
             inCallback();
         };
@@ -51,19 +52,11 @@ export class Client {
             createTimeout,
             //GET USERNAME
             function (callback) {
-                _this.reader.setCallback(function () {
-                    let posOfDelimiter = _this.reader.buffer.indexOf('\r\n');
-                    if (posOfDelimiter < 0) //not accepted whole name yet
-                    {
-                        if (_this.reader.buffer.length > 100) //already arrive more than 100 symbols
-                            return callback(exception.SYNTAX);
-                        return;
-                    }
-                    name = _this.reader.buffer.substring(0, posOfDelimiter);
-                    if (name.length > 100)
-                        return callback(exception.SYNTAX);
-                    //username is now whole and correct
-                    _this.reader.buffer = _this.reader.buffer.substring(name.length + 2);
+                _this.reader.maxLength = 100;
+                _this.reader.setCallback(function (text) {
+                    if (text === Errors.overLength)
+                        return callback(Errors.syntax);
+                    name = text;
                     return callback();
                 });
             },
@@ -77,26 +70,19 @@ export class Client {
             createTimeout,
             //GET PASSWORD
             function (callback) {
-                _this.reader.setCallback(function () {
-                    let posOfDelimiter = _this.reader.buffer.indexOf('\r\n');
-                    if (posOfDelimiter < 0) //not accepted whole password yet
-                    {
-                        if (_this.reader.buffer.length > 7) //already arrive more than 7 symbols
-                            return callback(exception.SYNTAX);
-                        return;
-                    }
-                    let password: string = _this.reader.buffer.substring(0, posOfDelimiter);
-                    if (password.length > 7)
-                        return callback(exception.SYNTAX);
-                    //password is now whole and correct accepted
-                    _this.reader.buffer = _this.reader.buffer.substring(name.length + 2);
+                _this.reader.maxLength = 7;
+                _this.reader.setCallback(function (text) {
+                    if (text === Errors.overLength)
+                        return callback(Errors.syntax);
+
+                    let password: string = text;
                     //validate
                     let sum: number = 0;
                     for (let i = 0; i < name.length; i++)
                         sum += name.charCodeAt(i);
                     console.log("Account validation based on " + parseInt(password) + " and " + sum);
                     if (parseInt(password) !== sum)
-                        return callback(exception.LOGIN);
+                        return callback(Errors.login);
                     return callback();
                 });
             },
@@ -106,7 +92,8 @@ export class Client {
                 CommunicationFacade.ServerOk(_this.socket, callback);
             }
         ], function (err, data) {
-            deleteTimeout(function () {});
+            deleteTimeout(function () {
+            });
             callback(err, data);
         });
     }

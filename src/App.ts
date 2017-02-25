@@ -12,13 +12,13 @@ class App {
             let c: Client = new Client(socket);
 
             async.series([
-                             function (callback: Function) {
-                                 c.authenticate(callback);
-                             },
-                             function (callback) {
-                                 c.navigate(callback);
-                             }
-                         ], function (err, res) {
+                function (callback: Function) {
+                    c.authenticate(callback);
+                },
+                function (callback) {
+                    c.navigate(callback);
+                }
+            ], function (err, res) {
                 if (err)
                     ex.SendError(socket, err);
             });
