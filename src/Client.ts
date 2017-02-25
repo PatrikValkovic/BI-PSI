@@ -1,7 +1,7 @@
 import * as net from 'net';
 import * as async from 'async';
 import * as exception from './Exceptions';
-import {Errors} from './Constants';
+import {Errors, Direction} from './Constants';
 import {CommunicationFacade} from './CommunicationFacade';
 import {Reader} from "./Reader";
 
@@ -20,13 +20,9 @@ export class Client {
         });
     }
 
-    public authenticate(callback) {
-
+    private factoryCreateTimeout(callback, timeoutLength) {
         let _this = this;
-        let timeoutLength = 1000;
-        let name = '';
-
-        let createTimeout = function (inCallback) {
+        return function (inCallback) {
             if (_this.timeout !== null)
                 return inCallback();
             _this.timeout = setTimeout(function () {
@@ -34,14 +30,27 @@ export class Client {
             }, timeoutLength);
             inCallback();
         };
-        let deleteTimeout = function (inCallback) {
+    }
+
+    private factoryDeleteTimeout() {
+        let _this = this;
+        return function (inCallback) {
             if (_this.timeout === null)
                 return inCallback();
             clearTimeout(_this.timeout);
             _this.timeout = null;
             inCallback();
         };
+    }
 
+    public authenticate(callback) {
+
+        let _this = this;
+        let timeoutLength = 1000;
+        let name = '';
+
+        let createTimeout = this.factoryCreateTimeout(callback, timeoutLength);
+        let deleteTimeout = this.factoryDeleteTimeout();
 
         async.series([
             //SEND USER PACKET
@@ -99,6 +108,52 @@ export class Client {
     }
 
     public navigate(callback) {
+        let _this = this;
 
+        let createTimeout = this.factoryCreateTimeout(callback, 1000);
+        let deleteTimeout = this.factoryDeleteTimeout();
+
+        let position = {
+            x: 0,
+            y: 0,
+            direction: Direction.up,
+        };
+
+        async.series([
+            function (callback) {
+                CommunicationFacade.ServerTurnLeft(_this.socket, callback);
+            },
+            createTimeout,
+            function (callback) {
+                _this.reader.maxLength = 12;
+                _this.reader.setCallback(function (text) {
+                    if (text === Errors.overLength || !text.startsWith('OK '))
+                        return callback(Errors.syntax);
+                    let rest = text.substring(3);
+                    let pos: string[] = rest.split(' ');
+                    if (pos.length != 2)
+                        return callback(Errors.syntax);
+                    position.x = parseInt(pos[0]);
+                    position.y = parseInt(pos[1]);
+                    if (isNaN(position.x) || isNaN(position.y))
+                        return callback(Errors.syntax);
+
+                    console.log("Pozice robota: [" + position.x + ',' + position.y + ']');
+                    callback();
+                });
+            },
+            deleteTimeout,
+            function (callback) {
+                CommunicationFacade.ServerMove(_this.socket, callback);
+            },
+            createTimeout,
+            function (callback) {
+                callback(Errors.logic);
+            }
+        ], function (err, data) {
+            deleteTimeout(function () {
+            });
+            callback(err, data);
+        });
     }
 }
