@@ -148,6 +148,9 @@ export class Client {
                         return callback(Errors.syntax);
                     _this.position = position;
 
+                    if(_this.position.x === 0 && _this.position.y === 0)
+                        return callback(Errors.onPosition);
+
                     console.log("Pozice robota: [" + _this.position.x + ',' + _this.position.y + ']');
                     callback();
                 });
@@ -350,6 +353,9 @@ export class Client {
                 });
             },
             deleteTimeout,
+            function(callback){
+                CommunicationFacade.ServerOk(_this.socket,callback);
+            }
         ], function (err, data) {
             deleteTimeout();
             callback(err, data);

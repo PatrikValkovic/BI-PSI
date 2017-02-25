@@ -24,4 +24,5 @@ export const Errors = {
     syntax: 8,
     logic: 16,
     my: 32,
+    onPosition: 64,
 };

@@ -2,6 +2,7 @@ import * as async from 'async';
 import * as net from 'net';
 import {Client} from './Client';
 import * as ex from "./Exceptions";
+import {Errors} from "./Constants";
 
 class App {
     public run(): void {
@@ -23,11 +24,17 @@ class App {
                     c.getMessage(callback);
                 }
             ], function (err, res) {
-                if (err)
-                    return ex.SendError(socket, err);
-                console.log("Robot finished his work");
-                socket.end();
-                socket.destroy();
+                let finish = function(err, data){
+                    if (err)
+                        return ex.SendError(socket, err);
+                    console.log("Robot finished his work");
+                    socket.end();
+                    socket.destroy();
+                };
+
+                if(err === Errors.onPosition)
+                    return c.getMessage(finish);
+                finish(err,res);
             });
         });
 
