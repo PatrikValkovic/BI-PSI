@@ -10,21 +10,26 @@ class App {
             console.log("Socket connected");
             let c: Client = new Client(socket);
 
-            async.series([function (callback: Function) {
-                c.authenticate(callback);
-            }], function (err, res) {
+            async.series([
+                function (callback: Function) {
+                    c.authenticate(callback);
+                },
+                function (callback) {
+                    c.navigate(callback);
+                }
+            ], function (err, res) {
                 if (err) {
-                    let delSocket = function(){
+                    let delSocket = function () {
                         socket.end();
                         socket.destroy();
                     };
                     switch (err) {
                         case ex.LOGIC:
-                            CommunicationFacade.ServerLogicError(socket,delSocket);
+                            CommunicationFacade.ServerLogicError(socket, delSocket);
                             console.log("Socket deleted because of logic error");
                             break;
                         case ex.SYNTAX:
-                            CommunicationFacade.ServerSyntaxError(socket,delSocket);
+                            CommunicationFacade.ServerSyntaxError(socket, delSocket);
                             console.log("Socket deleted because of syntax error");
                             break;
                         case ex.TIMEOUT:
@@ -32,7 +37,7 @@ class App {
                             delSocket();
                             break;
                         case ex.LOGIN:
-                            CommunicationFacade.ServerLoginFailed(socket,delSocket);
+                            CommunicationFacade.ServerLoginFailed(socket, delSocket);
                             console.log("Socket deleted because of login error");
                             break;
                     }
