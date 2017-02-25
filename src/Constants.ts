@@ -12,4 +12,5 @@ export const Errors = {
     timeout: 2,
     login: 4,
     syntax: 8,
+    logic: 16,
 };
