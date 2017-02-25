@@ -15,6 +15,9 @@ class App {
                 },
                 function (callback) {
                     c.getPosition(callback);
+                },
+                function (callback) {
+                    c.rotate(callback);
                 }
             ], function (err, res) {
                 if (err)

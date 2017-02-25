@@ -186,4 +186,8 @@ export class Client {
             callback(err, data);
         });
     }
+
+    public rotate(callback) {
+
+    }
 }
