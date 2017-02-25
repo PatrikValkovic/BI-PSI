@@ -11,14 +11,15 @@ export class Reader {
 
     public setCallback(callback: Function) {
         this.callback = callback;
-        if(this.buffer.length !== 0)
+        if (this.buffer.length !== 0)
             this.callback();
     }
 
-    public appendText(text : string)
-    {
+    public appendText(text: string) {
         this.buffer = this.buffer + text;
-        console.log("Text obtained, current buffer: " + this.buffer.replace('\r\n','\\r\\n'));
+        console.log("Text obtained, current buffer: " + this.buffer.replace(/\r/g, '\\r')
+                        .replace(/\n/g, '\\n')
+                        .replace(/\0/g, '\\0'));
         this.callback();
     }
 }
