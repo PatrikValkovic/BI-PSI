@@ -1,5 +1,5 @@
 import * as net from 'net';
-import {Client} from './MyClient';
+import {Client} from './Client';
 
 class App {
     public run(): void {
