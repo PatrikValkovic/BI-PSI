@@ -1,19 +1,33 @@
 export class Exception {
 }
 
+const TIMEOUT = 'timeout';
+const LOGIN = 'login';
+const SYNTAX = 'syntax';
+const LOGIC = 'logic';
+
+
 export class TimeoutException extends Exception {
-    private type = 'timeout';
+    public getType(): string {
+        return TIMEOUT;
+    }
 }
 
 export class LoginException extends Exception {
-    private type = 'login';
+    public getType(): string {
+        return LOGIN;
+    }
 }
 
 export class SyntaxException extends Exception {
-    private type = 'syntax';
+    public getType(): string {
+        return SYNTAX;
+    }
 }
 
 export class LogicException extends Exception {
-    private type = 'logic';
+    public getType(): string {
+        return LOGIC;
+    }
 }
 
