@@ -8,6 +8,7 @@ class App {
             try {
                 console.log("Socket connected");
                 let c: Client = new Client(socket);
+                c.authenticate();
             }
             catch (e) {
                 switch(e.getType()){
