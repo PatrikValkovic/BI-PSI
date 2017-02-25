@@ -37,6 +37,9 @@ export class Client {
     private factoryDeleteTimeout() {
         let _this = this;
         return function (inCallback) {
+            if (inCallback === null)
+                inCallback = function () {
+                };
             if (_this.timeout === null)
                 return inCallback();
             clearTimeout(_this.timeout);
@@ -188,10 +191,11 @@ export class Client {
     }
 
     public rotate(callback) {
+
         let _this = this;
 
-        let createTimeout = this.factoryCreateTimeout(callback, 1000);
-        let deleteTimeout = this.factoryDeleteTimeout();
+        let createTimeout: Function = this.factoryCreateTimeout(callback, 1000);
+        let deleteTimeout: Function = this.factoryDeleteTimeout();
 
         let createTest = function () {
             return function () {
@@ -199,10 +203,10 @@ export class Client {
                     return _this.position.direction === Direction.left;
                 if (_this.position.x > 0) //must be left
                     return _this.position.direction === Direction.right;
-                if (_this.position.y < 0) //must be up
-                    return _this.position.direction === Direction.up;
-                if (_this.position.y > 0) //must be down
+                if (_this.position.y < 0) //must be down
                     return _this.position.direction === Direction.down;
+                if (_this.position.y > 0) //must be up
+                    return _this.position.direction === Direction.up;
             };
         };
 
@@ -221,21 +225,50 @@ export class Client {
                         return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
                     return CommunicationFacade.ServerTurnRight(_this.socket, callback);
                 }
-                if (_this.position.y < 0) //must be up
-                {
-                    if (_this.position.direction == Direction.left)
-                        return CommunicationFacade.ServerTurnRight(_this.socket, callback);
-                    return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
-                }
-                if (_this.position.y > 0) //must be down
+                if (_this.position.y < 0) //must be down
                 {
                     if (_this.position.direction == Direction.left)
                         return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
                     return CommunicationFacade.ServerTurnRight(_this.socket, callback);
                 }
+                if (_this.position.y > 0) //must be up
+                {
+                    if (_this.position.direction == Direction.left)
+                        return CommunicationFacade.ServerTurnRight(_this.socket, callback);
+                    return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
+                }
             };
         };
 
-        async.until(createTest(), createRotate(), callback);
+        let generateCallback = function () {
+            return function (callback) {
+                let rotate = createRotate();
+                async.series([
+                    rotate,
+                    createTimeout,
+                    function (callback) {
+                        _this.reader.maxLength = 12;
+                        _this.reader.setCallback(function (text) {
+                            if (text === Errors.overLength)
+                                callback(Errors.syntax);
+
+                            let position = Client.parsePosition(text);
+                            if (position === null)
+                                return callback(Errors.syntax);
+
+                            _this.position = position;
+                            console.log("Pozice robota: [" + _this.position.x + ',' + _this.position.y + ']' + '-' + Direction.toString(_this.position.direction));
+                            callback();
+                        });
+                    },
+                    deleteTimeout(),
+                ], function (err, data) {
+                    deleteTimeout();
+                    callback(err, data);
+                });
+            };
+        };
+
+        async.until(createTest(), generateCallback(), callback);
     }
 }
