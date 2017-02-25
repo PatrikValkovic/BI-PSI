@@ -1,6 +1,6 @@
 import * as net from 'net';
 
-class CommunicationFacade {
+export class CommunicationFacade {
     public static ServerUser(socket: net.Socket): boolean {
         return socket.write('100 LOGIN\r\n');
     }
@@ -40,6 +40,4 @@ class CommunicationFacade {
     public static ServerLogicError(socket: net.Socket): boolean {
         return socket.write('302 LOGIC ERROR\r\n');
     }
-
-
 }
