@@ -19,30 +19,8 @@ class App {
                                  c.navigate(callback);
                              }
                          ], function (err, res) {
-                if (err) {
-                    let delSocket = function () {
-                        socket.end();
-                        socket.destroy();
-                    };
-                    switch (err) {
-                        case cons.Errors.logic:
-                            CommunicationFacade.ServerLogicError(socket, delSocket);
-                            console.log("Socket deleted because of logic error");
-                            break;
-                        case cons.Errors.syntax:
-                            CommunicationFacade.ServerSyntaxError(socket, delSocket);
-                            console.log("Socket deleted because of syntax error");
-                            break;
-                        case cons.Errors.timeout:
-                            console.log("Socket deleted because of timeout");
-                            delSocket();
-                            break;
-                        case cons.Errors.login:
-                            CommunicationFacade.ServerLoginFailed(socket, delSocket);
-                            console.log("Socket deleted because of login error");
-                            break;
-                    }
-                }
+                if (err)
+                    ex.SendError(socket, err);
             });
         });
 
