@@ -18,6 +18,7 @@ export class Reader {
     public appendText(text : string)
     {
         this.buffer = this.buffer + text;
+        console.log("Text obtained, current buffer: " + this.buffer.replace('\r\n','\\r\\n'));
         this.callback();
     }
 }
