@@ -109,8 +109,8 @@ export class Client {
         });
     }
 
-    private parsePosition(text: string): Position {
-        if (text.substr(0, 4) !== 'OK ')
+    private static parsePosition(text: string): Position {
+        if (text.substr(0, 3) !== 'OK ')
             return null;
         let rest = text.substring(3);
         let pos: string[] = rest.split(' ');
@@ -141,7 +141,7 @@ export class Client {
                     if (text === Errors.overLength || !text.startsWith('OK '))
                         return callback(Errors.syntax);
 
-                    let position = _this.parsePosition(text);
+                    let position = Client.parsePosition(text);
                     if (position === null)
                         return callback(Errors.syntax);
                     _this.position = position;
@@ -161,7 +161,7 @@ export class Client {
                     if (text === Errors.overLength)
                         callback(Errors.syntax);
 
-                    let position = _this.parsePosition(text);
+                    let position = Client.parsePosition(text);
                     if (position === null)
                         return callback(Errors.syntax);
 
