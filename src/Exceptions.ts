@@ -1,10 +1,10 @@
 export class Exception {
 }
 
-const TIMEOUT = 'timeout';
-const LOGIN = 'login';
-const SYNTAX = 'syntax';
-const LOGIC = 'logic';
+export const TIMEOUT = 'timeout';
+export const LOGIN = 'login';
+export const SYNTAX = 'syntax';
+export const LOGIC = 'logic';
 
 
 export class TimeoutException extends Exception {
