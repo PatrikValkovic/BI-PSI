@@ -2,13 +2,17 @@ import * as net from 'net';
 
 
 export class Client {
-    private socket : net.Socket;
+    private socket: net.Socket;
+    private timeout;
 
-    public constructor(socket : net.Socket) {
+    private timeouted(): void {
+
+    }
+
+    public constructor(socket: net.Socket) {
         this.socket = socket;
+        this.timeout = setTimeout(this.timeouted, 1000);
     }
 
-    public hello() {
 
-    }
 }
