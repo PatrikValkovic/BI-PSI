@@ -5,6 +5,16 @@ export const Direction = {
     right: 2,
     down: 4,
     left: 8,
+    toString(pos: number): string{
+        if (pos & this.up)
+            return 'up';
+        if (pos & this.right)
+            return 'right';
+        if (pos & this.down)
+            return 'down';
+        if (pos & this.left)
+            return 'left';
+    }
 };
 
 export const Errors = {
