@@ -1,7 +1,7 @@
 import * as net from 'net';
 
 
-export class MyClient {
+export class Client {
     private socket : net.Socket;
 
     public constructor(socket : net.Socket) {

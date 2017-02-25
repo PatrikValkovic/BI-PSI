@@ -1,10 +1,10 @@
 import * as net from 'net';
-import {MyClient} from './MyClient';
+import {Client} from './MyClient';
 
 class App {
     public run(): void {
         let server = net.createServer({}, function (socket) {
-            let c: MyClient = new MyClient(socket);
+            let c: Client = new Client(socket);
             console.log("Socket connected");
         });
         server.listen(1111, 'localhost', function () {
