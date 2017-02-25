@@ -4,11 +4,13 @@ import * as exception from './Exceptions';
 import {Errors, Direction} from './Constants';
 import {CommunicationFacade} from './CommunicationFacade';
 import {Reader} from "./Reader";
+import {Position} from './Position';
 
 export class Client {
     private socket: net.Socket;
     private timeout;
     private reader: Reader;
+    private position: Position;
 
     public constructor(socket: net.Socket) {
         let _this = this;
@@ -107,38 +109,44 @@ export class Client {
         });
     }
 
-    public navigate(callback) {
+    private parsePosition(text: string): Position {
+        if (text.substr(0, 4) !== 'OK ')
+            return null;
+        let rest = text.substring(3);
+        let pos: string[] = rest.split(' ');
+        if (pos.length != 2)
+            return null;
+        let instance: Position = new Position(parseInt(pos[0]), parseInt(pos[1]));
+        if (isNaN(instance.x) || isNaN(instance.y))
+            return null;
+        return instance;
+    }
+
+    public getPosition(callback) {
         let _this = this;
 
         let createTimeout = this.factoryCreateTimeout(callback, 1000);
         let deleteTimeout = this.factoryDeleteTimeout();
 
-        let position = {
-            x: 0,
-            y: 0,
-            direction: Direction.up,
-        };
+        this.position = new Position();
 
         async.series([
             function (callback) {
                 CommunicationFacade.ServerTurnLeft(_this.socket, callback);
             },
             createTimeout,
-            function (callback) {
+            function (callback) { //first get position
                 _this.reader.maxLength = 12;
                 _this.reader.setCallback(function (text) {
                     if (text === Errors.overLength || !text.startsWith('OK '))
                         return callback(Errors.syntax);
-                    let rest = text.substring(3);
-                    let pos: string[] = rest.split(' ');
-                    if (pos.length != 2)
-                        return callback(Errors.syntax);
-                    position.x = parseInt(pos[0]);
-                    position.y = parseInt(pos[1]);
-                    if (isNaN(position.x) || isNaN(position.y))
-                        return callback(Errors.syntax);
 
-                    console.log("Pozice robota: [" + position.x + ',' + position.y + ']');
+                    let position = _this.parsePosition(text);
+                    if (position === null)
+                        return callback(Errors.syntax);
+                    _this.position = position;
+
+                    console.log("Pozice robota: [" + _this.position.x + ',' + _this.position.y + ']');
                     callback();
                 });
             },
@@ -147,8 +155,30 @@ export class Client {
                 CommunicationFacade.ServerMove(_this.socket, callback);
             },
             createTimeout,
-            function (callback) {
-                callback(Errors.logic);
+            function (callback) { //second get direction
+                _this.reader.maxLength = 12;
+                _this.reader.setCallback(function (text) {
+                    if (text === Errors.overLength)
+                        callback(Errors.syntax);
+
+                    let position = _this.parsePosition(text);
+                    if (position === null)
+                        return callback(Errors.syntax);
+
+                    if (_this.position.x === position.x && _this.position.y === position.y + 1)
+                        position.direction = Direction.up;
+                    if (_this.position.x === position.x && _this.position.y === position.y - 1)
+                        position.direction = Direction.down;
+                    if (_this.position.x === position.x + 1 && _this.position.y === position.y)
+                        position.direction = Direction.right;
+                    if (_this.position.x === position.x - 1 && _this.position.y === position.y)
+                        position.direction = Direction.left;
+
+                    _this.position = position;
+                    console.log("Pozice robota: [" + _this.position.x + ',' + _this.position.y + ']' + '-' + Direction.toString(_this.position.direction));
+
+                    callback();
+                });
             }
         ], function (err, data) {
             deleteTimeout(function () {

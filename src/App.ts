@@ -16,7 +16,7 @@ class App {
                     c.authenticate(callback);
                 },
                 function (callback) {
-                    c.navigate(callback);
+                    c.getPosition(callback);
                 }
             ], function (err, res) {
                 if (err)
