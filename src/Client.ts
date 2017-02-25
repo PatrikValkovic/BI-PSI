@@ -269,4 +269,30 @@ export class Client {
 
         async.until(createTest(), generateCallback(), callback);
     }
+
+    public navigate(callback) {
+        let _this = this;
+
+        let createTimeout: Function = this.factoryCreateTimeout(callback, 1000);
+        let deleteTimeout: Function = this.factoryDeleteTimeout();
+
+        let createTest = function(){
+            return function(){
+                return _this.position.x === 0 && _this.position.y === 0;
+            };
+        };
+
+        let createFn = function(){
+            return function(callback){
+
+                async.series([],function(){
+                    deleteTimeout(function(){});
+                    callback();
+                });
+
+            }
+        };
+
+        async.until(createTest(),createFn(),callback);
+    }
 }
