@@ -193,25 +193,49 @@ export class Client {
         let createTimeout = this.factoryCreateTimeout(callback, 1000);
         let deleteTimeout = this.factoryDeleteTimeout();
 
-        let createTest = function(){
-            return function(){
-                if(_this.position.x < 0) //must be right
+        let createTest = function () {
+            return function () {
+                if (_this.position.x < 0) //must be right
                     return _this.position.direction === Direction.left;
-                if(_this.position.x > 0) //must be left
+                if (_this.position.x > 0) //must be left
                     return _this.position.direction === Direction.right;
-                if(_this.position.y < 0) //must be up
+                if (_this.position.y < 0) //must be up
                     return _this.position.direction === Direction.up;
-                if(_this.position.y > 0) //must be down
+                if (_this.position.y > 0) //must be down
                     return _this.position.direction === Direction.down;
             };
         };
 
-        let createRotate = function() {
-            return function(callback){
+        let createRotate = function () {
+            return function (callback) {
+                if (_this.position.x < 0) //must be right
+                {
+                    if (_this.position.direction == Direction.up)
+                        return CommunicationFacade.ServerTurnRight(_this.socket, callback);
+                    return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
 
+                }
+                if (_this.position.x > 0) //must be left
+                {
+                    if (_this.position.direction == Direction.up)
+                        return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
+                    return CommunicationFacade.ServerTurnRight(_this.socket, callback);
+                }
+                if (_this.position.y < 0) //must be up
+                {
+                    if (_this.position.direction == Direction.left)
+                        return CommunicationFacade.ServerTurnRight(_this.socket, callback);
+                    return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
+                }
+                if (_this.position.y > 0) //must be down
+                {
+                    if (_this.position.direction == Direction.left)
+                        return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
+                    return CommunicationFacade.ServerTurnRight(_this.socket, callback);
+                }
             };
         };
 
-        async.until(createTest(),createRotate(),callback);
+        async.until(createTest(), createRotate(), callback);
     }
 }
