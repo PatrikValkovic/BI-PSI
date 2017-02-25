@@ -50,4 +50,9 @@ export class CommunicationFacade {
         console.log("Sending: 302 LOGIC ERROR");
         return socket.write('302 LOGIC ERROR\r\n', callback);
     }
+
+    public static ServerMyError(socket: net.Socket, callback: Function): boolean {
+        console.log("Sending: 400 MY ERROR");
+        return socket.write('400 MY ERROR\r\n', callback);
+    }
 }

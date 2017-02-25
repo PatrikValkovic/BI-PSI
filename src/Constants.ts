@@ -23,4 +23,5 @@ export const Errors = {
     login: 4,
     syntax: 8,
     logic: 16,
+    my: 32,
 };

@@ -38,21 +38,21 @@ export function SendError(socket: net.Socket, error: number) {
         case cons.Errors.logic:
             CommunicationFacade.ServerLogicError(socket, delSocket);
             console.log("Socket deleted because of logic error");
-            delSocket();
             break;
         case cons.Errors.syntax:
             CommunicationFacade.ServerSyntaxError(socket, delSocket);
             console.log("Socket deleted because of syntax error");
-            delSocket();
             break;
         case cons.Errors.timeout:
             console.log("Socket deleted because of timeout");
-            delSocket();
             break;
         case cons.Errors.login:
             CommunicationFacade.ServerLoginFailed(socket, delSocket);
             console.log("Socket deleted because of login error");
-            delSocket();
+            break;
+        case cons.Errors.my:
+            CommunicationFacade.ServerMyError(socket, delSocket);
+            console.log("Socket deleted because of my error");
             break;
     }
 }
