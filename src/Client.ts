@@ -16,6 +16,6 @@ export class Client {
             callback(exception.TIMEOUT, null);
         }, 1000);
 
-        CommunicationFacade.ServerUser(this.socket);
+        //CommunicationFacade.ServerUser(this.socket);
     }
 }
