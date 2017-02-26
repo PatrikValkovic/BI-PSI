@@ -215,9 +215,9 @@ export class Client {
                         if (_this.position.x - 1 === oldPosition.x && _this.position.y === oldPosition.y)
                             _this.position.direction = Direction.right;
                         if (_this.position.x === oldPosition.x && _this.position.y + 1 === oldPosition.y)
-                            _this.position.direction = Direction.up;
-                        if (_this.position.x === oldPosition.x && _this.position.y - 1 === oldPosition.y)
                             _this.position.direction = Direction.down;
+                        if (_this.position.x === oldPosition.x && _this.position.y - 1 === oldPosition.y)
+                            _this.position.direction = Direction.up;
                         callback(err, data);
                     });
                 }, callback);
