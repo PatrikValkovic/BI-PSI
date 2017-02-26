@@ -20,11 +20,11 @@ export class RotationHelper {
         }
 
         if (diffY < 0) {
-            return Direction.up;
+            return Direction.down;
         }
 
         if (diffY > 0) {
-            return Direction.down;
+            return Direction.up;
         }
     }
 
