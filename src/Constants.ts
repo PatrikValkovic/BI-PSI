@@ -6,6 +6,8 @@ export const Direction = {
     down: 4,
     left: 8,
     toString(pos: number): string {
+        if(pos === null)
+            return 'unknown';
         let text : string = '';
         for(let property in this)
             if(pos & this[property])

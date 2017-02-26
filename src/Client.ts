@@ -44,6 +44,83 @@ export class Client {
         };
     }
 
+    //helpers
+
+    private static parsePosition(text: string): Position {
+        if (text.substr(0, 3) !== 'OK ')
+            return null;
+        let rest = text.substring(3);
+        let pos: string[] = rest.split(' ');
+        if (pos.length != 2)
+            return null;
+        let instance: Position = new Position(parseInt(pos[0]), parseInt(pos[1]));
+        if (isNaN(instance.x) || isNaN(instance.y) ||
+            instance.x.toString() !== pos[0] || instance.y.toString() !== pos[1])
+            return null;
+        return instance;
+    }
+
+    private move(callback: Function) {
+        console.log('Moving robot forward');
+        this.robotAction(callback, function (socket: net.Socket, callback: Function) {
+            CommunicationFacade.ServerMove(socket, callback);
+        });
+    };
+
+    private turnLeft(callback: Function) {
+        console.log('Turning robot left');
+        this.robotAction(callback, function (socket: net.Socket, callback: Function) {
+            CommunicationFacade.ServerTurnLeft(socket, callback);
+        });
+    };
+
+    private turnRight(callback: Function) {
+        console.log('Turning robot right');
+        this.robotAction(callback, function (socket: net.Socket, callback: Function) {
+            CommunicationFacade.ServerTurnRight(socket, callback);
+        });
+    };
+
+    private robotAction(callback: Function, command: Function) {
+        let _this = this;
+
+        let createTimeout: Function = this.factoryCreateTimeout(callback, 1000);
+        let deleteTimeout: Function = this.factoryDeleteTimeout();
+
+        async.series([
+            function (callback) {
+                command(_this.socket, callback);
+            },
+            createTimeout,
+            function (callback) {
+                _this.reader.maxLength = 10;
+                _this.reader.setCallback(function (text) {
+                    if (text === Errors.overLength || !text.startsWith('OK '))
+                        return callback(Errors.syntax);
+
+                    let position = Client.parsePosition(text);
+                    if (position === null)
+                        return callback(Errors.syntax);
+
+                    position.direction = _this.position.direction;
+                    _this.position = position;
+
+                    if (_this.position.x === 0 && _this.position.y === 0)
+                        return callback(Errors.onPosition);
+
+                    console.log("Pozice robota: [" + _this.position.x + ',' + _this.position.y + '] ' + Direction.toString(position.direction));
+                    callback();
+                });
+            },
+            deleteTimeout,
+        ], function (err, data) {
+            deleteTimeout();
+            callback(err, data);
+        });
+    }
+
+    //actions
+
     public authenticate(callback) {
 
         let _this = this;
@@ -111,20 +188,6 @@ export class Client {
         });
     }
 
-    private static parsePosition(text: string): Position {
-        if (text.substr(0, 3) !== 'OK ')
-            return null;
-        let rest = text.substring(3);
-        let pos: string[] = rest.split(' ');
-        if (pos.length != 2)
-            return null;
-        let instance: Position = new Position(parseInt(pos[0]), parseInt(pos[1]));
-        if (isNaN(instance.x) || isNaN(instance.y) ||
-            instance.x.toString() !== pos[0] || instance.y.toString() !== pos[1])
-            return null;
-        return instance;
-    }
-
     public getPosition(callback) {
         console.log("Getting position");
         let _this = this;
@@ -132,32 +195,37 @@ export class Client {
         let createTimeout = this.factoryCreateTimeout(callback, 1000);
         let deleteTimeout = this.factoryDeleteTimeout();
 
+        console.log("Creating unknown position");
         this.position = new Position();
+        this.position.direction = null;
 
         async.series([
-            function (callback) {
-                CommunicationFacade.ServerTurnLeft(_this.socket, callback);
+            function (callback) { //turn to get position
+                _this.turnLeft(callback);
             },
-            createTimeout,
-            function (callback) { //first get position
-                _this.reader.maxLength = 10;
-                _this.reader.setCallback(function (text) {
-                    if (text === Errors.overLength || !text.startsWith('OK '))
-                        return callback(Errors.syntax);
-
-                    let position = Client.parsePosition(text);
-                    if (position === null)
-                        return callback(Errors.syntax);
-                    _this.position = position;
-
-                    if (_this.position.x === 0 && _this.position.y === 0)
-                        return callback(Errors.onPosition);
-
-                    console.log("Pozice robota: [" + _this.position.x + ',' + _this.position.y + ']');
-                    callback();
-                });
-            },
-            deleteTimeout,
+            function (callback) { //get direction
+                console.log("Getting rotation for robot");
+                let oldPosition = Object.create(_this.position);
+                async.until(() => {return _this.position.direction !== null}, function (callback) {
+                    _this.move(function (err, data) {
+                        console.log('{this.x:' + _this.position.x + ',this.y:' + _this.position.y +
+                                    '}{old.x:' +    oldPosition.x +  ',old.y:' +    oldPosition.y + '}');
+                        if (_this.position.x + 1 === oldPosition.x && _this.position.y === oldPosition.y)
+                            _this.position.direction = Direction.left;
+                        if (_this.position.x - 1 === oldPosition.x && _this.position.y === oldPosition.y)
+                            _this.position.direction = Direction.right;
+                        if (_this.position.x === oldPosition.x && _this.position.y + 1 === oldPosition.y)
+                            _this.position.direction = Direction.up;
+                        if (_this.position.x === oldPosition.x && _this.position.y - 1 === oldPosition.y)
+                            _this.position.direction = Direction.down;
+                        callback(err, data);
+                    });
+                }, callback);
+            }, function (callback) {
+                console.log("Pozice robota: [" + _this.position.x + ',' + _this.position.y + '] ' + Direction.toString(_this.position.direction));
+                console.log("Pozice a rotace robota zjisteny");
+                callback();
+            }
         ], function (err, data) {
             deleteTimeout();
             callback(err, data);
@@ -292,9 +360,9 @@ export class Client {
                         });
                     },
                     deleteTimeout,
-                ], function () {
+                ], function (err, data) {
                     deleteTimeout();
-                    callback();
+                    callback(err, data);
                 });
             }
         };

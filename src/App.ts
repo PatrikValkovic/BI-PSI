@@ -18,7 +18,7 @@ class App {
                     c.getPosition(callback);
                 },
                 function(callback){
-                    c.navigate(callback);
+                    c.rotate(callback);
                 },
                 function(callback){
                     c.getMessage(callback);
