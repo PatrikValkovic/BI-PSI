@@ -70,6 +70,7 @@ export class Client {
 
     private turnLeft(callback: Function) {
         console.log('Turning robot left');
+        this.position.direction = RotationHelper.nextDirection(this.position.direction, 'left');
         this.robotAction(callback, function (socket: net.Socket, callback: Function) {
             CommunicationFacade.ServerTurnLeft(socket, callback);
         });
@@ -77,6 +78,7 @@ export class Client {
 
     private turnRight(callback: Function) {
         console.log('Turning robot right');
+        this.position.direction = RotationHelper.nextDirection(this.position.direction, 'right');
         this.robotAction(callback, function (socket: net.Socket, callback: Function) {
             CommunicationFacade.ServerTurnRight(socket, callback);
         });
@@ -210,7 +212,7 @@ export class Client {
                 async.until(() => {return _this.position.direction !== null}, function (callback) {
                     _this.move(function (err, data) {
                         console.log('{this.x:' + _this.position.x + ',this.y:' + _this.position.y +
-                                    '}{old.x:' +    oldPosition.x +  ',old.y:' +    oldPosition.y + '}');
+                            '}{old.x:' + oldPosition.x + ',old.y:' + oldPosition.y + '}');
                         if (_this.position.x + 1 === oldPosition.x && _this.position.y === oldPosition.y)
                             _this.position.direction = Direction.left;
                         if (_this.position.x - 1 === oldPosition.x && _this.position.y === oldPosition.y)
@@ -242,9 +244,9 @@ export class Client {
         let createTimeout: Function = this.factoryCreateTimeout(callback, 1000);
         let deleteTimeout: Function = this.factoryDeleteTimeout();
 
-        let desired = RotationHelper.getDesiredDirection(this.position,new Position(0,0));
+        let desired = RotationHelper.getDesiredDirection(this.position, new Position(0, 0));
         console.log("Desired rotation: " + Direction.toString(desired));
-        console.log("Must rotate: " + RotationHelper.nextRotation(this.position.direction,desired));
+        console.log("Must rotate: " + RotationHelper.nextRotation(this.position.direction, desired));
 
         //async.until(createTest(), generateCallback(), callback);
     }

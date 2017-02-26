@@ -28,7 +28,7 @@ export class RotationHelper {
         }
     }
 
-    public static nextRotation(currentRotation: number, requiredRotation: number): string {
+    public static nextRotation(currentRotation: number, requiredRotation: number): 'left'|'right'|'none' {
         if (this.log)
             console.log("Rotation from " + Direction.toString(currentRotation) + " to " + Direction.toString(requiredRotation));
 
@@ -71,4 +71,18 @@ export class RotationHelper {
             return 'left';
         return 'right';
     };
+
+    public static nextDirection(currentRotation: number, rotation : 'left'|'right'|'none') : number {
+        let index = null;
+        let length = this.directions.length;
+        for (let i = 0; i < length && index === null; i++)
+            if (this.directions[i] & currentRotation)
+                index = i;
+        if(rotation === 'none')
+            return currentRotation;
+        if(rotation === 'left')
+            return this.directions[(index + length - 1)%length];
+        if(rotation === 'right')
+            return this.directions[(index + 1)%length];
+    }
 }
