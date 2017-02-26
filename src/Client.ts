@@ -1,24 +1,28 @@
 import * as net from 'net';
 import * as async from 'async';
-import * as exception from './Exceptions';
 import {Errors, Direction} from './Constants';
 import {CommunicationFacade} from './CommunicationFacade';
 import {Reader} from "./Reader";
 import {Position} from './Position';
 import {PausingTimer} from './PausingTimer';
 import {RotationHelper} from './RotationHelpers';
+import {Charging} from './Charging';
 
 export class Client {
     private socket: net.Socket;
     private timeout: PausingTimer;
     private reader: Reader;
     private position: Position;
+    private charger : Charging;
 
     public constructor(socket: net.Socket) {
         let _this = this;
         this.socket = socket;
-        this.reader = new Reader();
         this.timeout = null;
+        this.reader = new Reader(function(){
+            if(_this.timeout !== null)
+                _this.timeout.repeat();
+        });
         this.socket.addListener('data', function (data: string) {
             _this.reader.appendText(data);
         });

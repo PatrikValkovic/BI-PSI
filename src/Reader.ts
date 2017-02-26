@@ -2,13 +2,16 @@ import {Errors} from './Constants';
 
 export class Reader {
     private callback: Function;
+    private arrive : Function;
 
     public buffer: string;
     public maxLength: number;
 
-    public constructor() {
+
+    public constructor(onMessageArrive : Function) {
         this.buffer = '';
         this.setCallback(()=>{});
+        this.arrive = onMessageArrive;
     }
 
     public pullMessage() : boolean {
@@ -56,6 +59,7 @@ export class Reader {
     public appendText(text: string) {
         this.buffer = this.buffer + text;
         console.log("Text obtained, length: " + this.buffer.length + " ? bufer: " + this.getTextInBuffer());
+        this.arrive();
 
         let parsed = this.obtainMessage();
         if(parsed === null)
