@@ -126,6 +126,7 @@ export class Client {
     }
 
     public getPosition(callback) {
+        console.log("Getting position");
         let _this = this;
 
         let createTimeout = this.factoryCreateTimeout(callback, 1000);
@@ -139,7 +140,7 @@ export class Client {
             },
             createTimeout,
             function (callback) { //first get position
-                _this.reader.maxLength = 12;
+                _this.reader.maxLength = 10;
                 _this.reader.setCallback(function (text) {
                     if (text === Errors.overLength || !text.startsWith('OK '))
                         return callback(Errors.syntax);
@@ -157,18 +158,15 @@ export class Client {
                 });
             },
             deleteTimeout,
-            function (callback) {
-                CommunicationFacade.ServerMove(_this.socket, callback);
-            },
-            createTimeout,
         ], function (err, data) {
-            deleteTimeout(function () {
-            });
+            deleteTimeout();
             callback(err, data);
         });
     }
 
     public rotate(callback) {
+
+        console.log("Starting to rotate");
 
         let _this = this;
 
@@ -241,8 +239,7 @@ export class Client {
                     },
                     deleteTimeout,
                 ], function (err, data) {
-                    deleteTimeout(function () {
-                    });
+                    deleteTimeout();
                     callback(err, data);
                 });
             };
@@ -252,6 +249,9 @@ export class Client {
     }
 
     public navigate(callback) {
+
+        console.log("Starting of navigate");
+
         let _this = this;
 
         let _rotate = false;
@@ -274,10 +274,10 @@ export class Client {
                     },
                     createTimeout,
                     function (callback) {
-                        _this.reader.maxLength = 12;
+                        _this.reader.maxLength = 10;
                         _this.reader.setCallback(function (text) {
                             if (text === Errors.overLength)
-                                callback(Errors.syntax);
+                                return callback(Errors.syntax);
 
                             let position = Client.parsePosition(text);
                             if (position === null)
@@ -292,13 +292,8 @@ export class Client {
                         });
                     },
                     deleteTimeout,
-                    function (callback) {
-                        if (_rotate)
-                            _this.rotate(callback);
-                    }
                 ], function () {
-                    deleteTimeout(function () {
-                    });
+                    deleteTimeout();
                     callback();
                 });
             }
@@ -308,6 +303,9 @@ export class Client {
     }
 
     public getMessage(callback) {
+
+        console.log("Starting of picking message");
+
         let _this = this;
 
         let createTimeout = this.factoryCreateTimeout(callback, 1000);
@@ -322,7 +320,7 @@ export class Client {
                 _this.reader.maxLength = 98;
                 _this.reader.setCallback(function (text) {
                     if (text === Errors.overLength)
-                        callback(Errors.syntax);
+                        return callback(Errors.syntax);
 
                     console.log("Robot pickuped: " + text);
                     callback();
