@@ -9,7 +9,7 @@ import {PausingTimer} from './PausingTimer';
 
 export class Client {
     private socket: net.Socket;
-    private timeout : PausingTimer;
+    private timeout: PausingTimer;
     private reader: Reader;
     private position: Position;
 
@@ -88,6 +88,8 @@ export class Client {
                     let password: string = text;
                     console.log("Obtained password: " + password);
                     //validate
+                    if (text !== parseInt(password).toString())
+                        return callback(Errors.syntax);
                     let sum: number = 0;
                     for (let i = 0; i < name.length; i++)
                         sum += name.charCodeAt(i);
@@ -117,7 +119,8 @@ export class Client {
         if (pos.length != 2)
             return null;
         let instance: Position = new Position(parseInt(pos[0]), parseInt(pos[1]));
-        if (isNaN(instance.x) || isNaN(instance.y))
+        if (isNaN(instance.x) || isNaN(instance.y) ||
+            instance.x.toString() !== pos[0] || instance.y.toString() !== pos[1])
             return null;
         return instance;
     }

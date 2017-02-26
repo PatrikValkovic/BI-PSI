@@ -55,7 +55,7 @@ export class Reader {
 
     public appendText(text: string) {
         this.buffer = this.buffer + text;
-        console.log("Text obtained, current buffer length: " + this.buffer.length + " ? " + this.getTextInBuffer());
+        console.log("Text obtained, length: " + this.buffer.length + " ? bufer: " + this.getTextInBuffer());
 
         let parsed = this.obtainMessage();
         if(parsed === null)
