@@ -92,4 +92,8 @@ export class Reader {
     public registerMiddleware(charger: Charging) {
         this.charging.push(charger);
     }
+
+    public checkNewMessasges(){
+        this.appendText('');
+    }
 }

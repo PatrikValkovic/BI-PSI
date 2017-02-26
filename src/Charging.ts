@@ -6,15 +6,18 @@ export class Charging {
     private getTimeoutFn: Function;
     private charging: boolean = false;
     private timeout: PausingTimer;
+    private forceMessagesFn : Function;
 
-    public constructor(getTimeoutFn: Function) {
+    public constructor(getTimeoutFn: Function, forceMessages: Function) {
         this.getTimeoutFn = getTimeoutFn;
+        this.forceMessagesFn = forceMessages;
         let _this = this;
         this.timeout = new PausingTimer(function () {
             console.log("Recharging timeout");
             _this.getTimeoutFn().exec(Errors.timeout);
         }, 5000);
         this.timeout.pause();
+
     }
 
     private static startWith(text: string, required: string): boolean {
@@ -59,6 +62,7 @@ export class Charging {
             this.timeout = null;
             this.charging = false;
             this.getTimeoutFn().repeat();
+            this.forceMessagesFn();
             return false;
         }
 

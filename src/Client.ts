@@ -19,7 +19,7 @@ export class Client {
         let _this = this;
         this.socket = socket;
         this.timeout = null;
-        this.charger = new Charging(() => {return _this.timeout;});
+        this.charger = new Charging(() => {return _this.timeout}, () => {_this.reader.checkNewMessasges()});
         this.reader = new Reader(() => {return _this.timeout === null ? null : _this.timeout.repeat(); });
         this.reader.attachArriveMessage(this.charger.createArriveTimeout());
         this.reader.registerMiddleware(this.charger);
