@@ -11,6 +11,15 @@ export class Reader {
         this.setCallback(()=>{});
     }
 
+    public pullMessage() : boolean {
+        let parsed = this.obtainMessage();
+        if(parsed === null)
+            return false;
+
+        this.callback(parsed);
+        return true;
+    }
+
     public setCallback(callback: Function) {
         this.callback = callback;
 
