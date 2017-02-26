@@ -6,14 +6,14 @@ export const Direction = {
     down: 4,
     left: 8,
     toString(pos: number): string {
-        if(pos === null)
+        if (pos === null)
             return 'unknown';
-        let text : string = '';
-        for(let property in this)
-            if(pos & this[property])
+        let text: string = '';
+        for (let property in this)
+            if (pos & this[property])
                 text += '_' + property;
         return text.substring(1);
-    }
+    },
 };
 
 export const Errors = {

@@ -6,6 +6,7 @@ import {CommunicationFacade} from './CommunicationFacade';
 import {Reader} from "./Reader";
 import {Position} from './Position';
 import {PausingTimer} from './PausingTimer';
+import {RotationHelper} from './RotationHelpers';
 
 export class Client {
     private socket: net.Socket;
@@ -241,79 +242,10 @@ export class Client {
         let createTimeout: Function = this.factoryCreateTimeout(callback, 1000);
         let deleteTimeout: Function = this.factoryDeleteTimeout();
 
-        let createTest = function () {
-            return function () {
-                if (_this.position.x < 0) //must be right
-                    return _this.position.direction === Direction.left;
-                if (_this.position.x > 0) //must be left
-                    return _this.position.direction === Direction.right;
-                if (_this.position.y < 0) //must be down
-                    return _this.position.direction === Direction.down;
-                if (_this.position.y > 0) //must be up
-                    return _this.position.direction === Direction.up;
-            };
-        };
+        let desired = RotationHelper.getDesiredDirection(this.position,new Position(0,0));
+        console.log("Desired rotation: " + Direction.toString(desired));
 
-        let createRotate = function () {
-            return function (callback) {
-                if (_this.position.x < 0) //must be right
-                {
-                    if (_this.position.direction == Direction.up)
-                        return CommunicationFacade.ServerTurnRight(_this.socket, callback);
-                    return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
-
-                }
-                if (_this.position.x > 0) //must be left
-                {
-                    if (_this.position.direction == Direction.up)
-                        return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
-                    return CommunicationFacade.ServerTurnRight(_this.socket, callback);
-                }
-                if (_this.position.y < 0) //must be down
-                {
-                    if (_this.position.direction == Direction.left)
-                        return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
-                    return CommunicationFacade.ServerTurnRight(_this.socket, callback);
-                }
-                if (_this.position.y > 0) //must be up
-                {
-                    if (_this.position.direction == Direction.left)
-                        return CommunicationFacade.ServerTurnRight(_this.socket, callback);
-                    return CommunicationFacade.ServerTurnLeft(_this.socket, callback);
-                }
-            };
-        };
-
-        let generateCallback = function () {
-            return function (callback) {
-                let rotate = createRotate();
-                async.series([
-                    rotate,
-                    createTimeout,
-                    function (callback) {
-                        _this.reader.maxLength = 12;
-                        _this.reader.setCallback(function (text) {
-                            if (text === Errors.overLength)
-                                callback(Errors.syntax);
-
-                            let position = Client.parsePosition(text);
-                            if (position === null)
-                                return callback(Errors.syntax);
-
-                            _this.position = position;
-                            console.log("Pozice robota: [" + _this.position.x + ',' + _this.position.y + ']' + '-' + Direction.toString(_this.position.direction));
-                            callback();
-                        });
-                    },
-                    deleteTimeout,
-                ], function (err, data) {
-                    deleteTimeout();
-                    callback(err, data);
-                });
-            };
-        };
-
-        async.until(createTest(), generateCallback(), callback);
+        //async.until(createTest(), generateCallback(), callback);
     }
 
     public navigate(callback) {
