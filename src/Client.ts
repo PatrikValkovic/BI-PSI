@@ -244,6 +244,7 @@ export class Client {
 
         let desired = RotationHelper.getDesiredDirection(this.position,new Position(0,0));
         console.log("Desired rotation: " + Direction.toString(desired));
+        console.log("Must rotate: " + RotationHelper.nextRotation(this.position.direction,desired));
 
         //async.until(createTest(), generateCallback(), callback);
     }
