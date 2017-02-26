@@ -21,6 +21,7 @@ export class Client {
         this.timeout = null;
         this.charger = new Charging(() => {return _this.timeout;});
         this.reader = new Reader(() => {return _this.timeout === null ? null : _this.timeout.repeat(); });
+        this.reader.attachArriveMessage(this.charger.createArriveTimeout());
         this.reader.registerMiddleware(this.charger);
         this.socket.addListener('data', function (data: string) {
             _this.reader.appendText(data);

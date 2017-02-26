@@ -3,7 +3,7 @@ import {Charging} from './Charging';
 
 export class Reader {
     private callback: Function;
-    private arrive: Function;
+    private arrive: Function[];
     private charging: Charging[];
 
     public buffer: string;
@@ -13,8 +13,12 @@ export class Reader {
     public constructor(onMessageArrive: Function) {
         this.buffer = '';
         this.setCallback(() => {});
-        this.arrive = onMessageArrive;
+        this.arrive = [onMessageArrive];
         this.charging = [];
+    }
+
+    public attachArriveMessage(fn: Function) {
+        this.arrive.push(fn);
     }
 
     public setCallback(callback: Function) {
@@ -59,7 +63,7 @@ export class Reader {
             return null;
         }
         let parsed: string = this.buffer.substring(0, posOfDelimiter);
-        if (this.handleMiddleware(parsed) === false){
+        if (this.handleMiddleware(parsed) === false) {
             this.buffer = this.buffer.substring(parsed.length + 2);
             return;
         }
@@ -75,10 +79,11 @@ export class Reader {
     public appendText(text: string) {
         this.buffer = this.buffer + text;
         console.log("Text obtained, length: " + this.buffer.length + " ? bufer: " + this.getTextInBuffer());
-        this.arrive();
+
+        this.arrive.forEach((fn) => {fn();});
 
         let _this = this;
-        let parsed = this.obtainMessage(function (text) {
+        this.obtainMessage(function (text) {
             if (text === null)
                 return;
 

@@ -1,62 +1,70 @@
-import {Client} from "./Client";
 import {Errors} from './Constants';
+import {PausingTimer} from './PausingTimer';
 
 export class Charging {
 
-    private getTimeout: Function;
-    private handled: boolean;
-    private timeout;
+    private getTimeoutFn: Function;
+    private charging: boolean = false;
+    private timeout: PausingTimer;
 
-    public constructor(getTimeout: Function) {
-        this.handled = false;
-        this.getTimeout = getTimeout;
-        this.timeout = null;
+    public constructor(getTimeoutFn: Function) {
+        this.getTimeoutFn = getTimeoutFn;
+        let _this = this;
+        this.timeout = new PausingTimer(function () {
+            console.log("Recharging timeout");
+            _this.getTimeoutFn().exec(Errors.timeout);
+        }, 5000);
+        this.timeout.pause();
     }
 
-    private static startWith(text : string, required : string): boolean {
+    private static startWith(text: string, required: string): boolean {
         let lenText = text.length;
         let lenReq = required.length;
-        for(let i=0;i<Math.min(lenText,lenReq);i++)
-            if(text.charAt(i) !== required.charAt(i))
+        for (let i = 0; i < Math.min(lenText, lenReq); i++)
+            if (text.charAt(i) !== required.charAt(i))
                 return false;
         return true;
     }
 
     public couldHandle(text: string) {
         //if recharging get everything
-        if (this.handled === true)
+        if (this.charging === true)
             return true;
 
-        return Charging.startWith(text,'RECHARGING') || Charging.startWith(text,'FULL POWER');
+        return Charging.startWith(text, 'RECHARGING') || Charging.startWith(text, 'FULL POWER');
+    }
+
+    public createArriveTimeout(): Function {
+        let _this = this;
+        return function () {
+            if (_this.charging)
+                _this.timeout.repeat();
+        }
     }
 
     public handle(text): boolean {
-        let _this = this;
         console.log("Arrive into charging: " + text);
 
         if (text === "RECHARGING") {
             console.log("Charging message arrive into middleware");
-            this.handled = true;
-            this.getTimeout().pause();
-            this.timeout = setTimeout(function () {
-                console.log("Recharging timeout");
-                _this.getTimeout().exec(Errors.timeout);
-            }, 5000);
+            this.charging = true;
+            this.getTimeoutFn().pause();
+            this.timeout.repeat();
             return false;
         }
 
-        if (text === "FULL POWER" && this.handled === true) {
+        if (text === "FULL POWER" && this.charging === true) {
             console.log("Full power message arrive into middleware");
-            clearTimeout(this.timeout);
+            this.timeout.pause();
             this.timeout = null;
-            this.handled = false;
-            this.getTimeout().repeat();
+            this.charging = false;
+            this.getTimeoutFn().repeat();
             return false;
         }
 
-        if (this.handled === true) {
+        if (this.charging === true) {
             console.log("Message during recharging - error");
-            this.getTimeout().exec(Errors.logic);
+            this.getTimeoutFn().exec(Errors.logic);
             return false;
         }
 
