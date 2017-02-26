@@ -25,12 +25,8 @@ export class Reader {
         let _this = this;
         this.callback = callback;
 
-        this.obtainMessage(function (parsed) {
-            if (parsed === null)
-                return;
-
-            _this.callback(parsed);
-        });
+        let parsed = this.obtainMessage();
+        this.handleText(parsed);
     }
 
     private getTextInBuffer(): string {
@@ -47,6 +43,15 @@ export class Reader {
         return false;
     }
 
+    private handleText(text) {
+        if (text === null)
+            return;
+
+        if (this.handleMiddleware(text) === false)
+            return;
+        this.callback(text);
+    }
+
     private handleMiddleware(text) {
         for (let i = 0, l = this.charging.length; i < l; i++)
             if (this.charging[i].handle(text) === false)
@@ -54,26 +59,22 @@ export class Reader {
         return true;
     }
 
-    private obtainMessage(callback: Function) {
+    private obtainMessage() {
+        console.log("Obtaining message");
         let posOfDelimiter = this.buffer.indexOf('\r\n');
         if (posOfDelimiter < 0) //not accepted whole name yet
         {
-            if (this.buffer.length > this.maxLength && this.couldMiddlewareHandle(this.buffer) === false)
-                return callback(Errors.overLength); //already arrive more symbols that require
+            if (this.buffer.length > this.maxLength && !this.couldMiddlewareHandle(this.buffer)) //already arrive more symbols that require
+                return Errors.overLength;
             return null;
         }
         let parsed: string = this.buffer.substring(0, posOfDelimiter);
-        if (this.handleMiddleware(parsed) === false) {
-            this.buffer = this.buffer.substring(parsed.length + 2);
-            return;
-        }
-
-        if (parsed.length > this.maxLength)
-            return callback(Errors.overLength);
+        if (parsed.length > this.maxLength && !this.couldMiddlewareHandle(this.buffer))
+            return Errors.overLength;
 
         this.buffer = this.buffer.substring(parsed.length + 2);
         console.log("Parsed message, message: " + parsed + " ? buffer: " + this.getTextInBuffer());
-        callback(parsed);
+        return parsed;
     }
 
     public appendText(text: string) {
@@ -82,14 +83,11 @@ export class Reader {
 
         this.arrive.forEach((fn) => {fn();});
 
-        let _this = this;
-        this.obtainMessage(function (text) {
-            if (text === null)
-                return;
+        let parsed = this.obtainMessage();
 
-            _this.callback(text);
-        });
-    }
+        this.handleText(parsed);
+    };
+
 
     public registerMiddleware(charger: Charging) {
         this.charging.push(charger);
