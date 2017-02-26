@@ -36,17 +36,17 @@ export class Reader {
             .replace(/\0/g, '\\0')
     }
 
-    private obtainMessage() : string {
+    private obtainMessage() {
         let posOfDelimiter = this.buffer.indexOf('\r\n');
         if (posOfDelimiter < 0) //not accepted whole name yet
         {
             if (this.buffer.length > this.maxLength) //already arrive more symbols that require
-                this.callback(Errors.overLength);
+                return Errors.overLength;
             return null;
         }
         let parsed : string = this.buffer.substring(0, posOfDelimiter);
         if (parsed.length > this.maxLength)
-            this.callback(Errors.overLength);
+            return Errors.overLength;
 
         this.buffer = this.buffer.substring(parsed.length + 2);
         console.log("Parsed message, message: " + parsed + " ? buffer: " + this.getTextInBuffer());
@@ -55,7 +55,7 @@ export class Reader {
 
     public appendText(text: string) {
         this.buffer = this.buffer + text;
-        console.log("Text obtained, current buffer: " + this.getTextInBuffer());
+        console.log("Text obtained, current buffer length: " + this.buffer.length + " ? " + this.getTextInBuffer());
 
         let parsed = this.obtainMessage();
         if(parsed === null)

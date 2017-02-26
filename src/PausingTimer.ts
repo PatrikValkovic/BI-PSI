@@ -8,6 +8,7 @@ export class PausingTimer {
     public constructor(callback: Function, delay: number) {
         this.callback = callback;
         this.remain = delay || 0;
+        this.resume();
     }
 
     public pause() {
