@@ -195,12 +195,8 @@ export class Client {
         console.log("Getting position");
         let _this = this;
 
-        let createTimeout = this.factoryCreateTimeout(callback, 1000);
-        let deleteTimeout = this.factoryDeleteTimeout();
-
         console.log("Creating unknown position");
         this.position = new Position();
-        this.position.direction = null;
 
         async.series([
             function (callback) { //turn to get position
@@ -208,6 +204,7 @@ export class Client {
             },
             function (callback) { //get direction
                 console.log("Getting rotation for robot");
+                _this.position.direction = null;
                 let oldPosition = Object.create(_this.position);
                 async.until(() => {return _this.position.direction !== null}, function (callback) {
                     _this.move(function (err, data) {
@@ -225,30 +222,11 @@ export class Client {
                     });
                 }, callback);
             }, function (callback) {
-                console.log("Pozice robota: [" + _this.position.x + ',' + _this.position.y + '] ' + Direction.toString(_this.position.direction));
+                console.log("Pozice robota je: [" + _this.position.x + ',' + _this.position.y + '] ' + Direction.toString(_this.position.direction));
                 console.log("Pozice a rotace robota zjisteny");
                 callback();
             }
-        ], function (err, data) {
-            deleteTimeout();
-            callback(err, data);
-        });
-    }
-
-    public rotate(callback) {
-
-        console.log("Starting to rotate");
-
-        let _this = this;
-
-        let createTimeout: Function = this.factoryCreateTimeout(callback, 1000);
-        let deleteTimeout: Function = this.factoryDeleteTimeout();
-
-        let desired = RotationHelper.getDesiredDirection(this.position, new Position(0, 0));
-        console.log("Desired rotation: " + Direction.toString(desired));
-        console.log("Must rotate: " + RotationHelper.nextRotation(this.position.direction, desired));
-
-        //async.until(createTest(), generateCallback(), callback);
+        ], callback);
     }
 
     public navigate(callback) {
@@ -256,11 +234,6 @@ export class Client {
         console.log("Starting of navigate");
 
         let _this = this;
-
-        let _rotate = false;
-
-        let createTimeout: Function = this.factoryCreateTimeout(callback, 1000);
-        let deleteTimeout: Function = this.factoryDeleteTimeout();
 
         let createTest = function () {
             return function () {
@@ -270,35 +243,17 @@ export class Client {
 
         let createFn = function () {
             return function (callback) {
-
                 async.series([
                     function (callback) {
-                        CommunicationFacade.ServerMove(_this.socket, callback);
-                    },
-                    createTimeout,
-                    function (callback) {
-                        _this.reader.maxLength = 10;
-                        _this.reader.setCallback(function (text) {
-                            if (text === Errors.overLength)
-                                return callback(Errors.syntax);
-
-                            let position = Client.parsePosition(text);
-                            if (position === null)
-                                return callback(Errors.syntax);
-
-                            if ((position.x === 0 && _this.position.x !== 0) ||
-                                (position.y === 0 && _this.position.y !== 0))
-                                _rotate = true;
-
-                            _this.position = position;
-                            callback();
-                        });
-                    },
-                    deleteTimeout,
-                ], function (err, data) {
-                    deleteTimeout();
-                    callback(err, data);
-                });
+                        let desiredRotation = RotationHelper.getDesiredDirection(_this.position, new Position(0, 0));
+                        let nextRotation = RotationHelper.nextRotation(_this.position.direction, desiredRotation);
+                        if (nextRotation === 'left')
+                            return _this.turnLeft(callback);
+                        if (nextRotation === 'right')
+                            return _this.turnRight(callback);
+                        return _this.move(callback);
+                    }
+                ], callback)
             }
         };
 
