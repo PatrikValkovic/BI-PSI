@@ -13,7 +13,7 @@ export class Charging {
         this.timeout = null;
     }
 
-    private startWith(text : string, required : string): boolean {
+    private static startWith(text : string, required : string): boolean {
         let lenText = text.length;
         let lenReq = required.length;
         for(let i=0;i<Math.min(lenText,lenReq);i++)
@@ -27,13 +27,15 @@ export class Charging {
         if (this.handled === true)
             return true;
 
-        return this.startWith(text,'RECHARGING') || this.startWith(text,'FULL POWER');
+        return Charging.startWith(text,'RECHARGING') || Charging.startWith(text,'FULL POWER');
     }
 
     public handle(text): boolean {
         let _this = this;
         console.log("Arrive into charging: " + text);
+
         if (text === "RECHARGING") {
+            console.log("Charging message arrive into middleware");
             this.handled = true;
             this.getTimeout().pause();
             this.timeout = setTimeout(function () {
@@ -44,7 +46,7 @@ export class Charging {
         }
 
         if (text === "FULL POWER" && this.handled === true) {
-            console.log("Robot now have full power and server accepts messages");
+            console.log("Full power message arrive into middleware");
             clearTimeout(this.timeout);
             this.timeout = null;
             this.handled = false;
@@ -53,7 +55,7 @@ export class Charging {
         }
 
         if (this.handled === true) {
-            console.log("Message during recarching - error");
+            console.log("Message during recharging - error");
             this.getTimeout().exec(Errors.logic);
             return false;
         }
