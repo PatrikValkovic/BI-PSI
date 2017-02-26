@@ -5,10 +5,11 @@ import {Errors, Direction} from './Constants';
 import {CommunicationFacade} from './CommunicationFacade';
 import {Reader} from "./Reader";
 import {Position} from './Position';
+import {PausingTimer} from './PausingTimer';
 
 export class Client {
     private socket: net.Socket;
-    private timeout;
+    private timeout : PausingTimer;
     private reader: Reader;
     private position: Position;
 
@@ -24,24 +25,20 @@ export class Client {
 
     private factoryCreateTimeout(callback, timeoutLength) {
         let _this = this;
-        return function (inCallback: Function = () => {
-        }) {
+        return function (inCallback: Function = () => { }) {
             if (_this.timeout !== null)
                 return inCallback();
-            _this.timeout = setTimeout(function () {
-                callback(Errors.timeout);
-            }, timeoutLength);
+            _this.timeout = new PausingTimer(() => { callback(Errors.timeout); }, timeoutLength);
             inCallback();
         };
     }
 
     private factoryDeleteTimeout() {
         let _this = this;
-        return function (inCallback: Function = () => {
-        }) {
+        return function (inCallback: Function = () => { }) {
             if (_this.timeout === null)
                 return inCallback();
-            clearTimeout(_this.timeout);
+            _this.timeout.pause();
             _this.timeout = null;
             inCallback();
         };
@@ -149,7 +146,7 @@ export class Client {
                         return callback(Errors.syntax);
                     _this.position = position;
 
-                    if(_this.position.x === 0 && _this.position.y === 0)
+                    if (_this.position.x === 0 && _this.position.y === 0)
                         return callback(Errors.onPosition);
 
                     console.log("Pozice robota: [" + _this.position.x + ',' + _this.position.y + ']');
@@ -314,14 +311,14 @@ export class Client {
         let deleteTimeout = this.factoryDeleteTimeout();
 
         async.series([
-            function(callback){
-                CommunicationFacade.ServerPickUp(_this.socket,callback);
+            function (callback) {
+                CommunicationFacade.ServerPickUp(_this.socket, callback);
             },
             createTimeout,
-            function(callback){
+            function (callback) {
                 _this.reader.maxLength = 100;
-                _this.reader.setCallback(function(text){
-                    if(text === Errors.overLength)
+                _this.reader.setCallback(function (text) {
+                    if (text === Errors.overLength)
                         callback(Errors.syntax);
 
                     console.log("Robot pickuped: " + text);
@@ -329,8 +326,8 @@ export class Client {
                 });
             },
             deleteTimeout,
-            function(callback){
-                CommunicationFacade.ServerOk(_this.socket,callback);
+            function (callback) {
+                CommunicationFacade.ServerOk(_this.socket, callback);
             }
         ], function (err, data) {
             deleteTimeout();
