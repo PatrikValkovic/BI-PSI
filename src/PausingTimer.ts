@@ -35,14 +35,15 @@ export class PausingTimer {
         this.timeout = setTimeout(() => {_this.exec()}, this.remain);
     }
 
-    public exec(...data) {
+    public exec(err = null) {
         if (this.called === true)
         {
             console.log("Callback was already called");
             return;
         }
+        console.log("PauseTimer.exec executed with param: " + err);
         this.called = true;
-        this.callback(data);
+        this.callback(err);
     }
 
     public repeat() {

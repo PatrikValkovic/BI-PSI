@@ -64,6 +64,7 @@ export class Charging {
 
         if (this.charging === true) {
             console.log("Message during recharging - error");
+            this.timeout.pause();
             this.getTimeoutFn().exec(Errors.logic);
             return false;
         }
