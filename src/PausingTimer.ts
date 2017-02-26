@@ -6,10 +6,13 @@ export class PausingTimer {
     private remain: number;
     private start: Date;
 
+    private called: boolean;
+
     public constructor(callback: Function, delay: number) {
         this.callback = callback;
         this.remain = delay || 0;
         this.original = delay;
+        this.called = false;
         this.resume();
     }
 
@@ -23,10 +26,23 @@ export class PausingTimer {
     }
 
     public resume() {
+        let _this = this;
         this.start = new Date();
-        if(this.timeout !== null)
+        //if is still running
+        if (this.timeout !== null)
             this.pause();
-        this.timeout = setTimeout(this.callback,this.remain);
+        //execute
+        this.timeout = setTimeout(() => {_this.exec()}, this.remain);
+    }
+
+    public exec(...data) {
+        if (this.called === true)
+        {
+            console.log("Callback was already called");
+            return;
+        }
+        this.called = true;
+        this.callback(data);
     }
 
     public repeat() {

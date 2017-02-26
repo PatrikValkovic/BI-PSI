@@ -10,19 +10,18 @@ import {Charging} from './Charging';
 
 export class Client {
     private socket: net.Socket;
-    private timeout: PausingTimer;
+    public timeout: PausingTimer;
     private reader: Reader;
     private position: Position;
-    private charger : Charging;
+    private charger: Charging;
 
     public constructor(socket: net.Socket) {
         let _this = this;
         this.socket = socket;
         this.timeout = null;
-        this.reader = new Reader(function(){
-            if(_this.timeout !== null)
-                _this.timeout.repeat();
-        });
+        this.charger = new Charging(() => {return _this.timeout;});
+        this.reader = new Reader(() => {return _this.timeout === null ? null : _this.timeout.repeat(); });
+        this.reader.registerMiddleware(this.charger);
         this.socket.addListener('data', function (data: string) {
             _this.reader.appendText(data);
         });

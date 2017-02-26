@@ -1,36 +1,32 @@
 import {Errors} from './Constants';
+import {Charging} from './Charging';
 
 export class Reader {
     private callback: Function;
-    private arrive : Function;
+    private arrive: Function;
+    private charging: Charging[];
 
     public buffer: string;
     public maxLength: number;
 
 
-    public constructor(onMessageArrive : Function) {
+    public constructor(onMessageArrive: Function) {
         this.buffer = '';
-        this.setCallback(()=>{});
+        this.setCallback(() => {});
         this.arrive = onMessageArrive;
-    }
-
-    public pullMessage() : boolean {
-        let parsed = this.obtainMessage();
-        if(parsed === null)
-            return false;
-
-        this.callback(parsed);
-        return true;
+        this.charging = [];
     }
 
     public setCallback(callback: Function) {
+        let _this = this;
         this.callback = callback;
 
-        let parsed = this.obtainMessage();
-        if(parsed === null)
-            return;
+        this.obtainMessage(function (parsed) {
+            if (parsed === null)
+                return;
 
-        this.callback(parsed);
+            _this.callback(parsed);
+        });
     }
 
     private getTextInBuffer(): string {
@@ -39,21 +35,41 @@ export class Reader {
             .replace(/\0/g, '\\0')
     }
 
-    private obtainMessage() {
+    //TRUE if accept
+    private couldMiddlewareHandle(text): boolean {
+        for (let i = 0, l = this.charging.length; i < l; i++)
+            if (this.charging[i].couldHandle(text) === true)
+                return true;
+        return false;
+    }
+
+    private handleMiddleware(text) {
+        for (let i = 0, l = this.charging.length; i < l; i++)
+            if (this.charging[i].handle(text) === false)
+                return false;
+        return true;
+    }
+
+    private obtainMessage(callback: Function) {
         let posOfDelimiter = this.buffer.indexOf('\r\n');
         if (posOfDelimiter < 0) //not accepted whole name yet
         {
-            if (this.buffer.length > this.maxLength) //already arrive more symbols that require
-                return Errors.overLength;
+            if (this.buffer.length > this.maxLength && this.couldMiddlewareHandle(this.buffer) === false)
+                return callback(Errors.overLength); //already arrive more symbols that require
             return null;
         }
-        let parsed : string = this.buffer.substring(0, posOfDelimiter);
+        let parsed: string = this.buffer.substring(0, posOfDelimiter);
+        if (this.handleMiddleware(parsed) === false){
+            this.buffer = this.buffer.substring(parsed.length + 2);
+            return;
+        }
+
         if (parsed.length > this.maxLength)
-            return Errors.overLength;
+            return callback(Errors.overLength);
 
         this.buffer = this.buffer.substring(parsed.length + 2);
         console.log("Parsed message, message: " + parsed + " ? buffer: " + this.getTextInBuffer());
-        return parsed;
+        callback(parsed);
     }
 
     public appendText(text: string) {
@@ -61,10 +77,16 @@ export class Reader {
         console.log("Text obtained, length: " + this.buffer.length + " ? bufer: " + this.getTextInBuffer());
         this.arrive();
 
-        let parsed = this.obtainMessage();
-        if(parsed === null)
-            return;
+        let _this = this;
+        let parsed = this.obtainMessage(function (text) {
+            if (text === null)
+                return;
 
-        this.callback(parsed);
+            _this.callback(text);
+        });
+    }
+
+    public registerMiddleware(charger: Charging) {
+        this.charging.push(charger);
     }
 }
