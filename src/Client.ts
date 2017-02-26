@@ -30,10 +30,15 @@ export class Client {
 
     private factoryCreateTimeout(callback, timeoutLength) {
         let _this = this;
+        let _call = true;
+        _this.charger.setErrorFn(function (err, data) {
+            _call = false;
+            callback(err, data);
+        });
         return function (inCallback: Function = () => { }) {
             if (_this.timeout !== null)
                 return inCallback();
-            _this.timeout = new PausingTimer(() => { callback(Errors.timeout); }, timeoutLength);
+            _this.timeout = new PausingTimer(() => { if (_call === true) callback(Errors.timeout); }, timeoutLength);
             inCallback();
         };
     }

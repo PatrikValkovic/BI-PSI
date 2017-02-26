@@ -7,6 +7,7 @@ export class Charging {
     private charging: boolean = false;
     private timeout: PausingTimer;
     private forceMessagesFn : Function;
+    private errorFn : Function;
 
     public constructor(getTimeoutFn: Function, forceMessages: Function) {
         this.getTimeoutFn = getTimeoutFn;
@@ -18,6 +19,10 @@ export class Charging {
         }, 5000);
         this.timeout.pause();
 
+    }
+
+    public setErrorFn(callback : Function){
+        this.errorFn = callback;
     }
 
     private static startWith(text: string, required: string): boolean {
@@ -59,7 +64,6 @@ export class Charging {
         if (text === "FULL POWER" && this.charging === true) {
             console.log("Full power message arrive into middleware");
             this.timeout.pause();
-            this.timeout = null;
             this.charging = false;
             this.getTimeoutFn().repeat();
             this.forceMessagesFn();
@@ -69,7 +73,7 @@ export class Charging {
         if (this.charging === true) {
             console.log("Message during recharging - error");
             this.timeout.pause();
-            this.getTimeoutFn().exec(Errors.logic);
+            this.errorFn(Errors.logic);
             return false;
         }
 
