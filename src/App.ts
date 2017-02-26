@@ -24,6 +24,7 @@ class App {
                     c.getMessage(callback);
                 }
             ], function (err, res) {
+
                 let finish = function(err, data){
                     if (err)
                         return ex.SendError(socket, err);

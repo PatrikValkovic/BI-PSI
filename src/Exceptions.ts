@@ -31,6 +31,7 @@ export class LogicException extends Exception {
 
 export function SendError(socket: net.Socket, error: number) {
     let delSocket = function () {
+        console.log("Socket will be disconnected and deleted now");
         socket.end();
         socket.destroy();
     };
@@ -45,6 +46,7 @@ export function SendError(socket: net.Socket, error: number) {
             break;
         case cons.Errors.timeout:
             console.log("Socket deleted because of timeout");
+            delSocket();
             break;
         case cons.Errors.login:
             CommunicationFacade.ServerLoginFailed(socket, delSocket);
