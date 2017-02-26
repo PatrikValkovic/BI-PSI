@@ -160,31 +160,6 @@ export class Client {
                 CommunicationFacade.ServerMove(_this.socket, callback);
             },
             createTimeout,
-            function (callback) { //second get direction
-                _this.reader.maxLength = 12;
-                _this.reader.setCallback(function (text) {
-                    if (text === Errors.overLength)
-                        callback(Errors.syntax);
-
-                    let position = Client.parsePosition(text);
-                    if (position === null)
-                        return callback(Errors.syntax);
-
-                    if (_this.position.x === position.x && _this.position.y === position.y + 1)
-                        position.direction = Direction.up;
-                    if (_this.position.x === position.x && _this.position.y === position.y - 1)
-                        position.direction = Direction.down;
-                    if (_this.position.x === position.x + 1 && _this.position.y === position.y)
-                        position.direction = Direction.right;
-                    if (_this.position.x === position.x - 1 && _this.position.y === position.y)
-                        position.direction = Direction.left;
-
-                    _this.position = position;
-                    console.log("Pozice robota: [" + _this.position.x + ',' + _this.position.y + ']' + '-' + Direction.toString(_this.position.direction));
-
-                    callback();
-                });
-            }
         ], function (err, data) {
             deleteTimeout(function () {
             });
