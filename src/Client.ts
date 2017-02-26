@@ -89,6 +89,7 @@ export class Client {
                         return callback(Errors.syntax);
 
                     let password: string = text;
+                    console.log("Obtained password: " + password);
                     //validate
                     let sum: number = 0;
                     for (let i = 0; i < name.length; i++)
