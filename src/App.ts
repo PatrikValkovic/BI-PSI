@@ -10,7 +10,7 @@ class App {
             console.log("Socket connected");
             let c: Client = new Client(socket);
 
-            async.series([
+            let series = async.series([
                 function (callback: Function) {
                     c.authenticate(callback);
                 },
