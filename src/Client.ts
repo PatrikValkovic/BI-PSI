@@ -62,7 +62,7 @@ export class Client {
             createTimeout,
             //GET USERNAME
             function (callback) {
-                _this.reader.maxLength = 100;
+                _this.reader.maxLength = 98;
                 _this.reader.setCallback(function (text) {
                     if (text === Errors.overLength)
                         return callback(Errors.syntax);
@@ -80,7 +80,7 @@ export class Client {
             createTimeout,
             //GET PASSWORD
             function (callback) {
-                _this.reader.maxLength = 7;
+                _this.reader.maxLength = 5;
                 _this.reader.setCallback(function (text) {
                     if (text === Errors.overLength)
                         return callback(Errors.syntax);
@@ -316,7 +316,7 @@ export class Client {
             },
             createTimeout,
             function (callback) {
-                _this.reader.maxLength = 100;
+                _this.reader.maxLength = 98;
                 _this.reader.setCallback(function (text) {
                     if (text === Errors.overLength)
                         callback(Errors.syntax);
