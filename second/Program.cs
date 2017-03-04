@@ -20,7 +20,7 @@ namespace second
                 int port = 4000;
                 string file = "";
 
-                InitActions.ValidateArgs(args, ip);
+                args = InitActions.ValidateArgs(args, ip);
 
                 //ip validation
                 ip = args[0];
@@ -37,6 +37,7 @@ namespace second
                         using (var str = new StreamWriter(File.OpenWrite("photo.png")))
                         {
                             Downloader d = new Downloader(s, str);
+                            d.initConnection();
                         }
                     }
                     else if (args.Length == 2)
@@ -49,7 +50,7 @@ namespace second
                     }
                 }
             }
-            catch (Exception e)
+            catch (TerminateException e)
             {
                 Console.WriteLine("Program will be terminated");
             }

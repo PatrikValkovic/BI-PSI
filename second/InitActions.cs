@@ -11,13 +11,13 @@ namespace second
 {
     class InitActions
     {
-        public static void ValidateArgs(string[] args, string ip)
+        public static string[] ValidateArgs(string[] args, string ip)
         {
             if (args.Length == 0 || args.Length > 2)
             {
                 Console.WriteLine("Usage: second <ip> [<file>]");
                 Console.WriteLine($"Default action will be use: download form ip {ip}");
-                args = new string[] { ip };
+                return new string[] { ip };
             }
             if(args.Length == 2)
             {
@@ -27,6 +27,7 @@ namespace second
                     throw new TerminateException();
                 }
             }
+            return args;
         }
 
         public static IPAddress ParseAddress(string ip)
