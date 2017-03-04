@@ -34,23 +34,34 @@ namespace second
                 Console.WriteLine("Program will be terminated");
                 return;
             };
-
-            if (args.Length == 1)
+            using (Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
             {
-                Console.WriteLine("Download action will be use");
-                //TODO download
-            }
-            else if (args.Length == 2)
-            {
-                Console.WriteLine("Firmware upload action will be use");
-                //file validation
-                if(!File.Exists(args[1]))
+                Console.WriteLine($"Connecting to {address}");
+                try { s.Connect(address, port); }
+                catch (SocketException e)
                 {
-                    Console.WriteLine($"Invalid file {args[1]}");
+                    Console.WriteLine("Connection was not established");
                     Console.WriteLine("Program will be terminated");
                     return;
                 }
-                //TODO upload
+
+                if (args.Length == 1)
+                {
+                    Console.WriteLine("Download action will be use");
+                    //TODO download
+                }
+                else if (args.Length == 2)
+                {
+                    Console.WriteLine("Firmware upload action will be use");
+                    //file validation
+                    if (!File.Exists(args[1]))
+                    {
+                        Console.WriteLine($"Invalid file {args[1]}");
+                        Console.WriteLine("Program will be terminated");
+                        return;
+                    }
+                    //TODO upload
+                }
             }
             byte[] buffer = new byte[10];
             using (Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
