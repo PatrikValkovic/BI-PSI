@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.IO;
 using System.Net.Sockets;
+using second.Exceptions;
 
 namespace second
 {
@@ -44,7 +45,7 @@ namespace second
         public static void ConnectSocket(Socket s, IPAddress address, int port)
         {
             try { s.Connect(address, port); }
-            catch (SocketException e)
+            catch (SocketException)
             {
                 Console.WriteLine("Connection was not established");
                 throw new TerminateException();

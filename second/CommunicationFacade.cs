@@ -35,5 +35,41 @@ namespace second
             Data.CopyTo(outBuffer, 9);
             socket.Send(outBuffer.Take(Data.Length + 9).ToArray());
         }
+
+        public static void InitConnection(Socket socket,out UInt32 ConnectionNumber, Command action)
+        {
+            int i = 0;
+            socket.ReceiveTimeout = 100;
+
+            byte flags;
+            byte[] data = new byte[MAXIMUM_LENGTH_OF_MESSAGE];
+            UInt16 serialNumber;
+            UInt16 confirmationNumber;
+            while (i < 20)
+            {
+                CommunicationFacade.Send(socket, 0, 0, 0, (byte)Flag.SYN, new byte[] { (byte)action });
+                try
+                {
+                    while (true)
+                    {
+                        CommunicationFacade.Receive(socket, out ConnectionNumber, out serialNumber, out confirmationNumber, out flags, out data);
+                        if (flags == (byte)Flag.SYN && data[0] == (byte)action && serialNumber==0 && confirmationNumber==0)
+                        {
+                            Console.WriteLine($"Connection established - communication {ConnectionNumber:X}");
+                            socket.ReceiveTimeout = 0;
+                            return;
+                        }
+                        else
+                            Console.WriteLine("Data obtained before connection packet received, ignoring");
+                    }
+                }
+                catch (SocketException e) when (e.SocketErrorCode == SocketError.TimedOut)
+                {
+                    Console.WriteLine($"Connection timeouted, attemp number {i + 1}");
+                    i++;
+                }
+            }
+            throw new Exceptions.MaximumAttempException();
+        }
     }
 }

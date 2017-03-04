@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 using System.IO;
+using second.Exceptions;
 
 namespace second
 {
@@ -18,7 +19,6 @@ namespace second
             {
                 string ip = "192.168.56.101";
                 int port = 4000;
-                string file = "";
 
                 args = InitActions.ValidateArgs(args, ip);
 
@@ -50,7 +50,7 @@ namespace second
                     }
                 }
             }
-            catch (TerminateException e)
+            catch (TerminateException)
             {
                 Console.WriteLine("Program will be terminated");
             }
