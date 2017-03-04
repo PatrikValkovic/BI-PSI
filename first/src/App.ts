@@ -40,8 +40,8 @@ class App {
         });
 
 
-        server.listen(1111, '127.0.0.1', function () {
-            console.log("Server is running on 127.0.0.1:1111");
+        server.listen(1111, 'localhost', function () {
+            console.log("Server is running on localhost:1111");
         });
     }
 }
