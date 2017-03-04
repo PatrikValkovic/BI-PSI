@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace second
+namespace second.Exceptions
 {
-    class TerminateException : Exception
+    class MaximumAttempException : Exception
     {
     }
 }
