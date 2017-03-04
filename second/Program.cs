@@ -21,7 +21,7 @@ namespace second
             if (args.Length == 0 || args.Length > 2)
             {
                 Console.WriteLine("Usage: second <ip> [<file>]");
-                Console.WriteLine($"Default action will be used: download form ip {ip}");
+                Console.WriteLine($"Default action will be use: download form ip {ip}");
                 args = new string[] { ip };
             }
 
