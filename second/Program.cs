@@ -20,30 +20,16 @@ namespace second
                 int port = 4000;
                 string file = "";
 
-                if (args.Length == 0 || args.Length > 2)
-                {
-                    Console.WriteLine("Usage: second <ip> [<file>]");
-                    Console.WriteLine($"Default action will be use: download form ip {ip}");
-                    args = new string[] { ip };
-                }
+                InitActions.ValidateArgs(args, ip);
 
                 //ip validation
                 ip = args[0];
-                IPAddress address;
-                if (!IPAddress.TryParse(ip, out address))
-                {
-                    Console.WriteLine($"Invalid IP address {ip}");
-                    throw new TerminateException();
-                };
+                IPAddress address = InitActions.ParseAddress(ip);
+                
                 using (Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
                 {
                     Console.WriteLine($"Connecting to {address}:{port}");
-                    try { s.Connect(address, port); }
-                    catch (SocketException e)
-                    {
-                        Console.WriteLine("Connection was not established");
-                        throw new TerminateException();
-                    }
+                    InitActions.ConnectSocket(s,address,port);
 
                     if (args.Length == 1)
                     {
@@ -53,12 +39,6 @@ namespace second
                     else if (args.Length == 2)
                     {
                         Console.WriteLine("Firmware upload action will be use");
-                        //file validation
-                        if (!File.Exists(args[1]))
-                        {
-                            Console.WriteLine($"Invalid file {args[1]}");
-                            throw new TerminateException();
-                        }
                         //TODO upload
                     }
                 }
