@@ -37,7 +37,8 @@ namespace second
                         using (var str = new StreamWriter(File.OpenWrite("photo.png")))
                         {
                             Downloader d = new Downloader(s, str);
-                            d.initConnection();
+                            d.InitConnection();
+                            d.AcceptFile();
                         }
                     }
                     else if (args.Length == 2)

@@ -24,9 +24,14 @@ namespace second
             this.socket = s;
         }
 
-        public void initConnection()
+        public void InitConnection()
         {
             CommunicationFacade.InitConnection(this.socket,out this.connectionNumber,Command.DOWNLOAD);
+        }
+
+        public void AcceptFile()
+        {
+
         }
     }
 }
