@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace second
 {
@@ -14,9 +15,6 @@ namespace second
         private Socket socket;
 
         private UInt32 connectionNumber;
-        private UInt16 serialNumber;
-        private UInt16 confirmationNumber;
-        private byte[] data;
 
         public Downloader(Socket s, StreamWriter writer)
         {
@@ -29,9 +27,34 @@ namespace second
             CommunicationFacade.InitConnection(this.socket,out this.connectionNumber,Command.DOWNLOAD);
         }
 
+        static private void TimeoutCheckerThread(object Param)
+        {
+            Console.WriteLine("TimeoutChecker thread started");
+        }
+
+        static private void ProccessDataThread(object Param)
+        {
+            Console.WriteLine("ProccessData thread started");
+        }
+
+        static private void ReceiveThread(object Param)
+        {
+            Console.WriteLine("Receive thread started");
+        }
+
         public void AcceptFile()
         {
+            Thread timeoutChecker = new Thread(TimeoutCheckerThread);
+            Thread receiver = new Thread(ReceiveThread);
+            Thread processData = new Thread(ProccessDataThread);
 
+            receiver.Start(new object());
+            timeoutChecker.Start(new object());
+            processData.Start(new object());
+
+            receiver.Join();
+            timeoutChecker.Join() ;
+            processData.Join();
         }
     }
 }
