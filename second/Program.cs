@@ -34,12 +34,18 @@ namespace second
                     if (args.Length == 1)
                     {
                         Console.WriteLine("Download action will be use");
-                        CommunicationFacade.Send(s,0,0,0,4,new byte[] { 1 });
+                        using (var str = new StreamWriter(File.OpenWrite("photo.png")))
+                        {
+                            Downloader d = new Downloader(s, str);
+                        }
                     }
                     else if (args.Length == 2)
                     {
-                        Console.WriteLine("Firmware upload action will be use");
-                        //TODO upload
+                        Console.WriteLine($"Firmware upload action will be use with file {args[1]}");
+                        using (var str = new StreamReader(File.OpenRead(args[1])))
+                        {
+                            Uploader d = new Uploader(s, str);
+                        }
                     }
                 }
             }
