@@ -12,7 +12,7 @@ namespace second
         private static readonly int MAXIMUM_LENGTH_OF_MESSAGE = 264;
 
         private static byte[] inputBuffer = new byte[MAXIMUM_LENGTH_OF_MESSAGE];
-        public static void receive(Socket socket, out UInt32 ConnectionNumber, out UInt16 SerialNumber, out UInt16 ConfirmationNumber, out byte Flags, out byte[] Data)
+        public static void Receive(Socket socket, out UInt32 ConnectionNumber, out UInt16 SerialNumber, out UInt16 ConfirmationNumber, out byte Flags, out byte[] Data)
         {
             socket.Receive(inputBuffer);
             ConnectionNumber = BitConverter.ToUInt32(inputBuffer,0);
@@ -23,7 +23,7 @@ namespace second
         }
 
         private static byte[] outBuffer = new byte[MAXIMUM_LENGTH_OF_MESSAGE];
-        public static void send(Socket socket, UInt32 ConnectionNumber, UInt16 SerialNumber, UInt16 ConfirmationNumber, byte Flags, byte[] Data)
+        public static void Send(Socket socket, UInt32 ConnectionNumber, UInt16 SerialNumber, UInt16 ConfirmationNumber, byte Flags, byte[] Data)
         {
             if (Data.Length > 255)
                 throw new ArgumentException("Data have more then 255 bytes");
