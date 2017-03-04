@@ -33,14 +33,27 @@ namespace second
             while(i<20)
             {
                 CommunicationFacade.Send(this.socket, 0, 0, 0, (byte)Flag.SYN, new byte[] { (byte)Command.DOWNLOAD });
-                CommunicationFacade.Receive(this.socket, out this.connectionNumber, out this.serialNumber, out this.confirmationNumber, out flags, out data);
-                if(flags == (byte)Flag.SYN)
+                try
                 {
-                    Console.WriteLine($"Connection established - communication {this.connectionNumber}");
-                    break;
+                    while(true)
+                    {
+                        CommunicationFacade.Receive(this.socket, out this.connectionNumber, out this.serialNumber, out this.confirmationNumber, out flags, out data);
+                        if (flags == (byte)Flag.SYN && data[0] == (byte)Command.DOWNLOAD)
+                        {
+                            Console.WriteLine($"Connection established - communication {this.connectionNumber:X}");
+                            this.socket.ReceiveTimeout = 0;
+                            return;
+                        }
+                        else
+                            Console.WriteLine("Data obtained before connection packet was send, ignoring");
+                    }
+                }
+                catch(SocketException e) when (e.SocketErrorCode == SocketError.TimedOut)
+                {
+                    Console.WriteLine($"Connection timeouted, attemp number {i+1}");
+                    i++;
                 }
             }
-            this.socket.ReceiveTimeout = 0;
         }
     }
 }

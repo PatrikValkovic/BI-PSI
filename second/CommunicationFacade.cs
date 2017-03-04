@@ -19,7 +19,7 @@ namespace second
             SerialNumber = BitConverter.ToUInt16(inputBuffer, 4);
             ConfirmationNumber = BitConverter.ToUInt16(inputBuffer, 6);
             Flags = inputBuffer[8];
-            Data = inputBuffer.Skip(8).ToArray();
+            Data = inputBuffer.Skip(9).ToArray();
         }
 
         private static byte[] outBuffer = new byte[MAXIMUM_LENGTH_OF_MESSAGE];
