@@ -12,6 +12,16 @@ namespace second
     {
         static void Main(string[] args)
         {
+            string ip = "192.168.56.101";
+            int port = 4000;
+            string file = "";
+
+            if (args.Length == 0)
+            {
+                Console.WriteLine("Usage: second <ip> [<file>]");
+                Console.WriteLine($"Default action will be used: download form ip {ip}");
+                args = new string[] { ip };
+            }
             byte[] buffer = new byte[10];
             using (Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
             {
@@ -37,8 +47,8 @@ namespace second
                     while (priznaky != 4)
                     {
                         s.Receive(buffer);
-                        
-                        foreach(byte b in buffer)
+
+                        foreach (byte b in buffer)
                         {
                             Console.Write($"{b:X00}");
                         }
@@ -49,7 +59,7 @@ namespace second
                         CisloPotvrzeni = BitConverter.ToUInt16(buffer, 6);
                         priznaky = buffer[8];
                         prikaz = buffer[9];
-                        Console.WriteLine($"Cislo spojeni {cisloSpojeni:X} sekvencni {sekvencniCislo} potvrzeni {CisloPotvrzeni} priznaky {Convert.ToString(priznaky,2)} prikaz {prikaz}");
+                        Console.WriteLine($"Cislo spojeni {cisloSpojeni:X} sekvencni {sekvencniCislo} potvrzeni {CisloPotvrzeni} priznaky {Convert.ToString(priznaky, 2)} prikaz {prikaz}");
                     }
                     Console.WriteLine("Prikaz 4 prisel");
 
