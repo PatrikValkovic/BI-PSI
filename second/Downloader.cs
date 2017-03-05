@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using second.Packets;
 
 namespace second
 {
@@ -27,9 +28,22 @@ namespace second
             CommunicationFacade.InitConnection(this.socket,out this.connectionNumber,Command.DOWNLOAD);
         }
 
+        private DownloadPacket receive()
+        {
+            byte flags;
+            UInt32 connectionNumber;
+            UInt16 serialNumber,confirmationNumber;
+            byte[] data;
+            CommunicationFacade.Receive(this.socket,out connectionNumber,out serialNumber,out confirmationNumber,out flags,out data);
+            return new DownloadPacket(data,connectionNumber,flags,serialNumber);
+        }
+
         public void AcceptFile()
         {
-            
+            while(true)
+            {
+                DownloadPacket pack = receive();
+            }
         }
     }
 }
