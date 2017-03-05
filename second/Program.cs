@@ -28,12 +28,12 @@ namespace second
                 
                 using (Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
                 {
-                    Console.WriteLine($"Connecting to {address}:{port}");
+                    Logger.WriteLine($"Connecting to {address}:{port}");
                     InitActions.ConnectSocket(s,address,port);
 
                     if (args.Length == 1)
                     {
-                        Console.WriteLine("Download action will be use");
+                        Logger.WriteLine("Download action will be use");
                         using (var str = new StreamWriter(File.OpenWrite("photo.png")))
                         {
                             Downloader d = new Downloader(s, str);
@@ -43,7 +43,7 @@ namespace second
                     }
                     else if (args.Length == 2)
                     {
-                        Console.WriteLine($"Firmware upload action will be use with file {args[1]}");
+                        Logger.WriteLine($"Firmware upload action will be use with file {args[1]}");
                         using (var str = new StreamReader(File.OpenRead(args[1])))
                         {
                             Uploader d = new Uploader(s, str);
@@ -53,11 +53,11 @@ namespace second
             }
             catch (TerminateException)
             {
-                Console.WriteLine("Program will be terminated");
+                Logger.WriteLine("Program will be terminated");
             }
             finally
             {
-                Console.WriteLine("End");
+                Logger.WriteLine("End");
                 Console.ReadKey();
             }
         }

@@ -53,7 +53,7 @@ namespace second
                         CommunicationFacade.Receive(socket, out ConnectionNumber, out serialNumber, out confirmationNumber, out flags, out data);
                         if (flags == (byte)Flag.SYN && data[0] == (byte)action && serialNumber==0 && confirmationNumber==0)
                         {
-                            Console.WriteLine($"Connection established - communication {ConnectionNumber:X}");
+                            Logger.WriteLine($"Connection established - communication {ConnectionNumber:X}");
                             socket.ReceiveTimeout = 0;
                             return;
                         }
@@ -63,7 +63,7 @@ namespace second
                 }
                 catch (SocketException e) when (e.SocketErrorCode == SocketError.TimedOut)
                 {
-                    Console.WriteLine($"Connection timeouted, attemp number {i + 1}");
+                    Logger.WriteLine($"Connection timeouted, attemp number {i + 1}");
                     i++;
                 }
             }

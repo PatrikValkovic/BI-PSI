@@ -16,15 +16,15 @@ namespace second
         {
             if (args.Length == 0 || args.Length > 2)
             {
-                Console.WriteLine("Usage: second <ip> [<file>]");
-                Console.WriteLine($"Default action will be use: download form ip {ip}");
+                Logger.WriteLine("Usage: second <ip> [<file>]");
+                Logger.WriteLine($"Default action will be use: download form ip {ip}");
                 return new string[] { ip };
             }
             if(args.Length == 2)
             {
                 if (!File.Exists(args[1]))
                 {
-                    Console.WriteLine($"Invalid file {args[1]}");
+                    Logger.WriteLine($"Invalid file {args[1]}");
                     throw new TerminateException();
                 }
             }
@@ -36,7 +36,7 @@ namespace second
             IPAddress address;
             if (!IPAddress.TryParse(ip, out address))
             {
-                Console.WriteLine($"Invalid IP address {ip}");
+                Logger.WriteLine($"Invalid IP address {ip}");
                 throw new TerminateException();
             };
             return address;
@@ -47,7 +47,7 @@ namespace second
             try { s.Connect(address, port); }
             catch (SocketException)
             {
-                Console.WriteLine("Connection was not established");
+                Logger.WriteLine("Connection was not established");
                 throw new TerminateException();
             }
         }
