@@ -9,9 +9,7 @@ namespace second
 {
     class CommunicationFacade
     {
-        private static readonly int MAXIMUM_LENGTH_OF_MESSAGE = 264;
-
-        private static byte[] inputBuffer = new byte[MAXIMUM_LENGTH_OF_MESSAGE];
+        private static byte[] inputBuffer = new byte[(int) Sizes.PACKET_MAX];
         public static void Receive(Socket socket, out UInt32 ConnectionNumber, out UInt16 SerialNumber, out UInt16 ConfirmationNumber, out byte Flags, out byte[] Data)
         {
             socket.Receive(inputBuffer);
@@ -22,7 +20,7 @@ namespace second
             Data = inputBuffer.Skip(9).ToArray();
         }
 
-        private static byte[] outBuffer = new byte[MAXIMUM_LENGTH_OF_MESSAGE];
+        private static byte[] outBuffer = new byte[(int)Sizes.PACKET_MAX];
         public static void Send(Socket socket, UInt32 ConnectionNumber, UInt16 SerialNumber, UInt16 ConfirmationNumber, byte Flags, byte[] Data)
         {
             if (Data.Length > 255)
@@ -42,7 +40,7 @@ namespace second
             socket.ReceiveTimeout = 100;
 
             byte flags;
-            byte[] data = new byte[MAXIMUM_LENGTH_OF_MESSAGE];
+            byte[] data = new byte[(int)Sizes.PACKET_MAX];
             UInt16 serialNumber;
             UInt16 confirmationNumber;
             while (i < 20)
