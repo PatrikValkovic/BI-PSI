@@ -40,9 +40,20 @@ namespace second
 
         public void AcceptFile()
         {
+            LinkedList<DownloadPacket> PacketsToProccess = new LinkedList<DownloadPacket>();
+            UInt64 last_received = 10;
             while(true)
             {
                 DownloadPacket pack = receive();
+                LinkedListNode<DownloadPacket> before = PacketsToProccess.First;
+                //find before which to insert
+                for (; before != null && before.Value.SerialNumber < pack.SerialNumber;before = before.Next) ;
+                //insert
+                if (before == null)
+                    PacketsToProccess.AddFirst(pack);
+                else
+                    PacketsToProccess.AddBefore(before,pack);
+
             }
         }
     }
