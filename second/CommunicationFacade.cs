@@ -58,6 +58,7 @@ namespace second
             if (Data.Length > 255)
                 throw new ArgumentException("Data have more then 255 bytes");
 
+            Logger.WriteLine($"SEND from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags, 2)} data={getDataInString(Data)}");
 
             //Fucking rotate it, because that fucking image send data as fucking big endian
             if (BitConverter.IsLittleEndian)
@@ -69,11 +70,9 @@ namespace second
 
             BitConverter.GetBytes(ConnectionNumber).CopyTo(outBuffer,0);
             BitConverter.GetBytes(SerialNumber).CopyTo(outBuffer,4);
-            BitConverter.GetBytes(ConnectionNumber).CopyTo(outBuffer,6);
+            BitConverter.GetBytes(ConfirmationNumber).CopyTo(outBuffer, 6);
             outBuffer[8] = Flags;
             Data.CopyTo(outBuffer, 9);
-
-            Logger.WriteLine($"SEND from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags, 2)} data={getDataInString(Data)}");
 
             socket.Send(outBuffer.Take(Data.Length + 9).ToArray());
         }
