@@ -9,6 +9,28 @@ namespace second
 {
     class CommunicationFacade
     {
+        private static StringBuilder log = new StringBuilder();
+        private static string getDataInString(byte[] data)
+        {
+            log.Clear();
+            if (data.Length > 16)
+            {
+                foreach (byte b in data.Take(8).ToArray())
+                    log.Append($"{b:X00} ");
+                log.Append("... ");
+                foreach (byte b in data.Skip(data.Length - 8).ToArray())
+                    log.Append($"{b:X00} ");
+            }
+            else
+            {
+                foreach (byte b in data)
+                    log.Append($"{b:X00} ");
+            }
+            return log.ToString();
+        }
+
+
+
         private static byte[] inputBuffer = new byte[(int) Sizes.PACKET_MAX];
         public static void Receive(Socket socket, out UInt32 ConnectionNumber, out UInt16 SerialNumber, out UInt16 ConfirmationNumber, out byte Flags, out byte[] Data)
         {
@@ -18,6 +40,8 @@ namespace second
             ConfirmationNumber = BitConverter.ToUInt16(inputBuffer, 6);
             Flags = inputBuffer[8];
             Data = inputBuffer.Skip(9).ToArray();
+
+            Logger.WriteLine($"RECV from {ConnectionNumber} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags,2)}\nData: {getDataInString(Data)}");
         }
 
         private static byte[] outBuffer = new byte[(int)Sizes.PACKET_MAX];
@@ -31,6 +55,9 @@ namespace second
             BitConverter.GetBytes(ConnectionNumber).CopyTo(outBuffer,6);
             outBuffer[8] = Flags;
             Data.CopyTo(outBuffer, 9);
+
+            Logger.WriteLine($"SEND from {ConnectionNumber} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags, 2)}\nData: {getDataInString(Data)}");
+
             socket.Send(outBuffer.Take(Data.Length + 9).ToArray());
         }
 
