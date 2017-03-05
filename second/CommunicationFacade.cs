@@ -33,7 +33,7 @@ namespace second
 
         private static byte[] inputBuffer = new byte[(int) Sizes.PACKET_MAX];
         public static void Receive(Socket socket, out UInt32 ConnectionNumber, out UInt16 SerialNumber, out UInt16 ConfirmationNumber, out byte Flags, out byte[] Data)
-        {
+        {      
             int recived = socket.Receive(inputBuffer);
             ConnectionNumber = BitConverter.ToUInt32(inputBuffer,0);
             SerialNumber = BitConverter.ToUInt16(inputBuffer, 4);
@@ -41,7 +41,15 @@ namespace second
             Flags = inputBuffer[8];
             Data = inputBuffer.Skip(9).Take(recived-(int)Sizes.HEADER_SIZE).ToArray();
 
-            Logger.WriteLine($"RECV from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags,2)} Data={getDataInString(Data)}");
+            //Fucking rotate it, because that fucking image send data as fucking big endian
+            if (BitConverter.IsLittleEndian)
+            {
+                ConnectionNumber = BitConverter.ToUInt32(BitConverter.GetBytes(ConnectionNumber).Reverse().ToArray(),0);
+                SerialNumber = BitConverter.ToUInt16(BitConverter.GetBytes(SerialNumber).Reverse().ToArray(),0);
+                ConfirmationNumber = BitConverter.ToUInt16(BitConverter.GetBytes(ConfirmationNumber).Reverse().ToArray(),0);
+            }
+
+            Logger.WriteLine($"RECV from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags,2)} data={getDataInString(Data)}");
         }
 
         private static byte[] outBuffer = new byte[(int)Sizes.PACKET_MAX];
@@ -50,13 +58,22 @@ namespace second
             if (Data.Length > 255)
                 throw new ArgumentException("Data have more then 255 bytes");
 
+
+            //Fucking rotate it, because that fucking image send data as fucking big endian
+            if (BitConverter.IsLittleEndian)
+            {
+                ConnectionNumber = BitConverter.ToUInt32(BitConverter.GetBytes(ConnectionNumber).Reverse().ToArray(), 0);
+                SerialNumber = BitConverter.ToUInt16(BitConverter.GetBytes(SerialNumber).Reverse().ToArray(), 0);
+                ConfirmationNumber = BitConverter.ToUInt16(BitConverter.GetBytes(ConfirmationNumber).Reverse().ToArray(), 0);
+            }
+
             BitConverter.GetBytes(ConnectionNumber).CopyTo(outBuffer,0);
             BitConverter.GetBytes(SerialNumber).CopyTo(outBuffer,4);
             BitConverter.GetBytes(ConnectionNumber).CopyTo(outBuffer,6);
             outBuffer[8] = Flags;
             Data.CopyTo(outBuffer, 9);
 
-            Logger.WriteLine($"SEND from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags, 2)}Data={getDataInString(Data)}");
+            Logger.WriteLine($"SEND from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags, 2)} data={getDataInString(Data)}");
 
             socket.Send(outBuffer.Take(Data.Length + 9).ToArray());
         }
