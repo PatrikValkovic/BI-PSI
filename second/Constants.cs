@@ -15,6 +15,7 @@
 
     enum Sizes : int
     {
+        HEADER_SIZE = 9,
         PACKET_MIN = 9,
         PACKET_MAX = 264,
         TIMEOUT = 100,

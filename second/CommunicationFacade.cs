@@ -34,14 +34,14 @@ namespace second
         private static byte[] inputBuffer = new byte[(int) Sizes.PACKET_MAX];
         public static void Receive(Socket socket, out UInt32 ConnectionNumber, out UInt16 SerialNumber, out UInt16 ConfirmationNumber, out byte Flags, out byte[] Data)
         {
-            socket.Receive(inputBuffer);
+            int recived = socket.Receive(inputBuffer);
             ConnectionNumber = BitConverter.ToUInt32(inputBuffer,0);
             SerialNumber = BitConverter.ToUInt16(inputBuffer, 4);
             ConfirmationNumber = BitConverter.ToUInt16(inputBuffer, 6);
             Flags = inputBuffer[8];
-            Data = inputBuffer.Skip(9).ToArray();
+            Data = inputBuffer.Skip(9).Take(recived-(int)Sizes.HEADER_SIZE).ToArray();
 
-            Logger.WriteLine($"RECV from {ConnectionNumber} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags,2)}\nData: {getDataInString(Data)}");
+            Logger.WriteLine($"RECV from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags,2)} Data={getDataInString(Data)}");
         }
 
         private static byte[] outBuffer = new byte[(int)Sizes.PACKET_MAX];
@@ -56,7 +56,7 @@ namespace second
             outBuffer[8] = Flags;
             Data.CopyTo(outBuffer, 9);
 
-            Logger.WriteLine($"SEND from {ConnectionNumber} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags, 2)}\nData: {getDataInString(Data)}");
+            Logger.WriteLine($"SEND from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags, 2)}Data={getDataInString(Data)}");
 
             socket.Send(outBuffer.Take(Data.Length + 9).ToArray());
         }
