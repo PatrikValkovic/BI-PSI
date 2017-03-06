@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace second.Packets
 {
-    class RecvPacket : BasePacket
+    class CommunicationPacket : BasePacket
     {
-        public RecvPacket(UInt32 connectionNumber, UInt16 serialNumber, UInt16 confirmationNumber, byte flags, byte[] data)
+        public CommunicationPacket(UInt32 connectionNumber, UInt16 serialNumber, UInt16 confirmationNumber, byte flags, byte[] data)
             : base(connectionNumber,flags,data)
         {
             this.SerialNumber = serialNumber;
