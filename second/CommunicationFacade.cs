@@ -55,28 +55,31 @@ namespace second
         }
 
         private static byte[] outBuffer = new byte[(int)Sizes.PACKET_MAX];
-        public static void Send(Socket socket, UInt32 ConnectionNumber, UInt16 SerialNumber, UInt16 ConfirmationNumber, byte Flags, byte[] Data)
+        public static void Send(Socket socket, CommunicationPacket p)
         {
-            if (Data.Length > 255)
+            if (p.Data.Length > 255)
                 throw new ArgumentException("Data have more then 255 bytes");
 
-            Logger.WriteLine($"SEND from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags, 2)} data({Data.Length})={getDataInString(Data)}");
+            Logger.WriteLine($"SEND from={p.ConnectionNumber:X} seq={p.SerialNumber} conf={p.ConfirmationNumber} flags={Convert.ToString(p.Flags, 2)} data({p.Data.Length})={getDataInString(p.Data)}");
 
             //Fucking rotate it, because that fucking image send data as fucking big endian
+            UInt32 connectionNumber = p.ConnectionNumber;
+            UInt16 serialNumber = p.SerialNumber;
+            UInt16 confirmationNumber = p.ConfirmationNumber;
             if (BitConverter.IsLittleEndian)
             {
-                ConnectionNumber = BitConverter.ToUInt32(BitConverter.GetBytes(ConnectionNumber).Reverse().ToArray(), 0);
-                SerialNumber = BitConverter.ToUInt16(BitConverter.GetBytes(SerialNumber).Reverse().ToArray(), 0);
-                ConfirmationNumber = BitConverter.ToUInt16(BitConverter.GetBytes(ConfirmationNumber).Reverse().ToArray(), 0);
+                connectionNumber = BitConverter.ToUInt32(BitConverter.GetBytes(connectionNumber).Reverse().ToArray(), 0);
+                serialNumber = BitConverter.ToUInt16(BitConverter.GetBytes(serialNumber).Reverse().ToArray(), 0);
+                confirmationNumber = BitConverter.ToUInt16(BitConverter.GetBytes(confirmationNumber).Reverse().ToArray(), 0);
             }
 
-            BitConverter.GetBytes(ConnectionNumber).CopyTo(outBuffer,0);
-            BitConverter.GetBytes(SerialNumber).CopyTo(outBuffer,4);
-            BitConverter.GetBytes(ConfirmationNumber).CopyTo(outBuffer, 6);
-            outBuffer[8] = Flags;
-            Data.CopyTo(outBuffer, 9);
+            BitConverter.GetBytes(connectionNumber).CopyTo(outBuffer,0);
+            BitConverter.GetBytes(serialNumber).CopyTo(outBuffer,4);
+            BitConverter.GetBytes(confirmationNumber).CopyTo(outBuffer, 6);
+            outBuffer[8] = p.Flags;
+            p.Data.CopyTo(outBuffer, 9);
 
-            socket.Send(outBuffer.Take(Data.Length + 9).ToArray());
+            socket.Send(outBuffer.Take(p.Data.Length + 9).ToArray());
         }
 
         public static void InitConnection(Socket socket,out UInt32 ConnectionNumber, Command action)
