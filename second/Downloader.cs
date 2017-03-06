@@ -25,26 +25,24 @@ namespace second
 
         public void InitConnection()
         {
-            CommunicationFacade.InitConnection(this.socket,out this.connectionNumber,Command.DOWNLOAD);
+            this.connectionNumber = CommunicationFacade.InitConnection(this.socket, Command.DOWNLOAD);
         }
 
         private DownloadPacket receive()
         {
-            byte flags;
-            UInt32 connectionNumber;
-            UInt16 serialNumber,confirmationNumber;
-            byte[] data;
-            CommunicationFacade.Receive(this.socket,out connectionNumber,out serialNumber,out confirmationNumber,out flags,out data);
-            return new DownloadPacket(data,connectionNumber,flags,serialNumber);
+            CommunicationPacket p = CommunicationFacade.Receive(this.socket);
+            //TODO transform
+            return new DownloadPacket(p.Data,p.ConnectionNumber,p.Flags,p.SerialNumber);
         }
 
         public void AcceptFile()
         {
+            byte[] empty = new byte[] { };
             LinkedList<DownloadPacket> PacketsToProccess = new LinkedList<DownloadPacket>();
-            UInt64 last_received = 10;
+            UInt64 required = 0;
             while(true)
             {
-                DownloadPacket pack = receive();
+                DownloadPacket pack = this.receive();
                 LinkedListNode<DownloadPacket> before = PacketsToProccess.First;
                 //find before which to insert
                 for (; before != null && before.Value.SerialNumber < pack.SerialNumber;before = before.Next) ;
@@ -54,6 +52,18 @@ namespace second
                 else
                     PacketsToProccess.AddBefore(before,pack);
 
+                while(PacketsToProccess.First != null && PacketsToProccess.First.Value.SerialNumber <= required)
+                {
+                    DownloadPacket toProccess = PacketsToProccess.First.Value;
+                    PacketsToProccess.RemoveFirst();
+                    if (toProccess.SerialNumber < required)
+                        continue;
+                    this.outFile.Write(toProccess.Data);
+                    required += (uint)toProccess.Data.Length;
+                    if (toProccess.Data.Length != 255)
+                        return;
+                }
+                CommunicationFacade.Send(this.socket,new CommunicationPacket(this.connectionNumber,0, Convert.ToUInt16(required),0,empty));
             }
         }
     }
