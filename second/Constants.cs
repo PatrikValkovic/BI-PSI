@@ -1,4 +1,6 @@
-﻿namespace second
+﻿using System;
+
+namespace second
 {
     enum Command : byte
     {
@@ -6,6 +8,7 @@
         UPLOAD = 0x2
     }
 
+    [Flags]
     enum Flag : byte
     {
         RST = 0x1,
@@ -13,7 +16,8 @@
         SYN = 0x4
     }
 
-    enum Sizes : int
+    [Flags]
+    public enum Sizes : int
     {
         HEADER_SIZE = 9,
         PACKET_MIN = 9,
