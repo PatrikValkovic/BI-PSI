@@ -9,7 +9,7 @@ namespace second.Packets
     class DownloadPacket : BasePacket
     {
         public DownloadPacket(byte[] data,UInt32 connectionNumber, byte flags, UInt16 serialNumber)
-            :base(data,connectionNumber,flags)
+            :base(connectionNumber,flags,data)
         {
             this.SerialNumber = serialNumber;
         }

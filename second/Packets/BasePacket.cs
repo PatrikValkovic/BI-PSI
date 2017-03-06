@@ -8,7 +8,7 @@ namespace second.Packets
 {
     class BasePacket
     {
-        public BasePacket(byte[] data, UInt32 connectionNumber, byte flags)
+        public BasePacket(UInt32 connectionNumber, byte flags, byte[] data)
         {
             this.Data = data;
             this.ConnectionNumber = connectionNumber;
