@@ -33,7 +33,7 @@ namespace second
 
 
         private static byte[] inputBuffer = new byte[(int) Sizes.PACKET_MAX];
-        public static RecvPacket Receive(Socket socket)
+        public static CommunicationPacket Receive(Socket socket)
         {      
             int recived = socket.Receive(inputBuffer);
             UInt32 connectionNumber = BitConverter.ToUInt32(inputBuffer,0);
@@ -51,7 +51,7 @@ namespace second
             }
 
             Logger.WriteLine($"RECV from={connectionNumber:X} seq={serialNumber} conf={confirmationNumber} flags={Convert.ToString(flags,2)} data({data.Length})={getDataInString(data)}");
-            return new RecvPacket(connectionNumber,serialNumber,confirmationNumber,flags,data);
+            return new CommunicationPacket(connectionNumber,serialNumber,confirmationNumber,flags,data);
         }
 
         private static byte[] outBuffer = new byte[(int)Sizes.PACKET_MAX];
