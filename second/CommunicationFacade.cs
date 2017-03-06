@@ -1,4 +1,5 @@
-﻿using System;
+﻿using second.Packets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -32,24 +33,25 @@ namespace second
 
 
         private static byte[] inputBuffer = new byte[(int) Sizes.PACKET_MAX];
-        public static void Receive(Socket socket, out UInt32 ConnectionNumber, out UInt16 SerialNumber, out UInt16 ConfirmationNumber, out byte Flags, out byte[] Data)
+        public static RecvPacket Receive(Socket socket)
         {      
             int recived = socket.Receive(inputBuffer);
-            ConnectionNumber = BitConverter.ToUInt32(inputBuffer,0);
-            SerialNumber = BitConverter.ToUInt16(inputBuffer, 4);
-            ConfirmationNumber = BitConverter.ToUInt16(inputBuffer, 6);
-            Flags = inputBuffer[8];
-            Data = inputBuffer.Skip(9).Take(recived-(int)Sizes.HEADER_SIZE).ToArray();
+            UInt32 connectionNumber = BitConverter.ToUInt32(inputBuffer,0);
+            UInt16 serialNumber = BitConverter.ToUInt16(inputBuffer, 4);
+            UInt16 confirmationNumber = BitConverter.ToUInt16(inputBuffer, 6);
+            byte flags = inputBuffer[8];
+            byte[] data = inputBuffer.Skip(9).Take(recived-(int)Sizes.HEADER_SIZE).ToArray();
 
             //Fucking rotate it, because that fucking image send data as fucking big endian
             if (BitConverter.IsLittleEndian)
             {
-                ConnectionNumber = BitConverter.ToUInt32(BitConverter.GetBytes(ConnectionNumber).Reverse().ToArray(),0);
-                SerialNumber = BitConverter.ToUInt16(BitConverter.GetBytes(SerialNumber).Reverse().ToArray(),0);
-                ConfirmationNumber = BitConverter.ToUInt16(BitConverter.GetBytes(ConfirmationNumber).Reverse().ToArray(),0);
+                connectionNumber = BitConverter.ToUInt32(BitConverter.GetBytes(connectionNumber).Reverse().ToArray(),0);
+                serialNumber = BitConverter.ToUInt16(BitConverter.GetBytes(serialNumber).Reverse().ToArray(),0);
+                confirmationNumber = BitConverter.ToUInt16(BitConverter.GetBytes(confirmationNumber).Reverse().ToArray(),0);
             }
 
-            Logger.WriteLine($"RECV from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags,2)} data={getDataInString(Data)}");
+            Logger.WriteLine($"RECV from={connectionNumber:X} seq={serialNumber} conf={confirmationNumber} flags={Convert.ToString(flags,2)} data({data.Length})={getDataInString(data)}");
+            return new RecvPacket(connectionNumber,serialNumber,confirmationNumber,flags,data);
         }
 
         private static byte[] outBuffer = new byte[(int)Sizes.PACKET_MAX];
@@ -58,7 +60,7 @@ namespace second
             if (Data.Length > 255)
                 throw new ArgumentException("Data have more then 255 bytes");
 
-            Logger.WriteLine($"SEND from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags, 2)} data={getDataInString(Data)}");
+            Logger.WriteLine($"SEND from={ConnectionNumber:X} seq={SerialNumber} conf={ConfirmationNumber} flags={Convert.ToString(Flags, 2)} data({Data.Length})={getDataInString(Data)}");
 
             //Fucking rotate it, because that fucking image send data as fucking big endian
             if (BitConverter.IsLittleEndian)
