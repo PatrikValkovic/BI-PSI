@@ -82,28 +82,24 @@ namespace second
             socket.Send(outBuffer.Take(p.Data.Length + 9).ToArray());
         }
 
-        public static void InitConnection(Socket socket,out UInt32 ConnectionNumber, Command action)
+        public static UInt32 InitConnection(Socket socket, Command action)
         {
             int i = 0;
             socket.ReceiveTimeout = 100;
-
-            byte flags;
-            byte[] data = new byte[(int)Sizes.PACKET_MAX];
-            UInt16 serialNumber;
-            UInt16 confirmationNumber;
+            
             while (i < 20)
             {
-                CommunicationFacade.Send(socket, 0, 0, 0, (byte)Flag.SYN, new byte[] { (byte)action });
+                CommunicationFacade.Send(socket, new CommunicationPacket(0,0,0,(byte)Flag.SYN, new byte[] { (byte)action }));
                 try
                 {
                     while (true)
                     {
-                        CommunicationFacade.Receive(socket, out ConnectionNumber, out serialNumber, out confirmationNumber, out flags, out data);
-                        if (flags == (byte)Flag.SYN && data[0] == (byte)action && serialNumber==0 && confirmationNumber==0)
+                        CommunicationPacket recived = CommunicationFacade.Receive(socket);
+                        if (recived.Flags == (byte)Flag.SYN && recived.Data[0] == (byte)action && recived.SerialNumber==0 && recived.ConfirmationNumber==0)
                         {
-                            Logger.WriteLine($"Connection established - communication {ConnectionNumber:X}");
+                            Logger.WriteLine($"Connection established - communication {recived.ConnectionNumber:X}");
                             socket.ReceiveTimeout = 0;
-                            return;
+                            return recived.ConnectionNumber;
                         }
                         else
                             Console.WriteLine("Data obtained before connection packet received, ignoring");
