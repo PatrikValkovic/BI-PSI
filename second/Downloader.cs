@@ -16,6 +16,7 @@ namespace second
         private Socket socket;
 
         private UInt32 connectionNumber;
+        private UInt64 required;
 
         public Downloader(Socket s, StreamWriter writer)
         {
@@ -31,28 +32,35 @@ namespace second
         private DownloadPacket receive()
         {
             CommunicationPacket p = CommunicationFacade.Receive(this.socket);
-            //TODO transform
-            return new DownloadPacket(p.Data,p.ConnectionNumber,p.Flags,p.SerialNumber);
+            UInt16 minRequired = Convert.ToUInt16(required);
+            UInt16 maxRequired = Convert.ToUInt16(required + (int)Sizes.WINDOW_SIZE);
+            UInt64 modCurrent = this.required - (this.required & UInt16.MaxValue);
+            DownloadPacket toReturn;
+            if (minRequired < maxRequired)
+            {
+                toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, (UInt32)modCurrent + (UInt32)p.SerialNumber);
+            }
+            else
+            {
+                toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, modCurrent + (UInt32)UInt16.MaxValue + (UInt32)p.SerialNumber);
+            }
+            Logger.WriteLine($"Downloader recive packet with serial={toReturn.SerialNumber}");
+            return toReturn;
         }
 
         public void AcceptFile()
         {
             byte[] empty = new byte[] { };
-            LinkedList<DownloadPacket> PacketsToProccess = new LinkedList<DownloadPacket>();
-            UInt64 required = 0;
-            while(true)
+            //TODO add priority queue
+            required = 0;
+
+            while (true)
             {
                 DownloadPacket pack = this.receive();
-                LinkedListNode<DownloadPacket> before = PacketsToProccess.First;
-                //find before which to insert
-                for (; before != null && before.Value.SerialNumber < pack.SerialNumber;before = before.Next) ;
-                //insert
-                if (before == null)
-                    PacketsToProccess.AddFirst(pack);
-                else
-                    PacketsToProccess.AddBefore(before,pack);
+                
+                //Attach into priority queue
 
-                while(PacketsToProccess.First != null && PacketsToProccess.First.Value.SerialNumber <= required)
+                while (PacketsToProccess.First != null && PacketsToProccess.First.Value.SerialNumber <= required)
                 {
                     DownloadPacket toProccess = PacketsToProccess.First.Value;
                     PacketsToProccess.RemoveFirst();
@@ -63,7 +71,7 @@ namespace second
                     if (toProccess.Data.Length != 255)
                         return;
                 }
-                CommunicationFacade.Send(this.socket,new CommunicationPacket(this.connectionNumber,0, Convert.ToUInt16(required),0,empty));
+                CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(required), 0, empty));
             }
         }
     }

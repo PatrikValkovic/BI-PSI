@@ -8,12 +8,12 @@ namespace second.Packets
 {
     class DownloadPacket : BasePacket
     {
-        public DownloadPacket(byte[] data,UInt32 connectionNumber, byte flags, UInt16 serialNumber)
+        public DownloadPacket(byte[] data,UInt32 connectionNumber, byte flags, UInt64 serialNumber)
             :base(connectionNumber,flags,data)
         {
             this.SerialNumber = serialNumber;
         }
 
-        public readonly UInt16 SerialNumber;
+        public readonly UInt64 SerialNumber;
     }
 }
