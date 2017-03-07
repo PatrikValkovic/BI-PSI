@@ -62,9 +62,14 @@ export class Reader {
     private obtainMessage() {
         console.log("Obtaining message");
         let posOfDelimiter = this.buffer.indexOf('\r\n');
+        //compute length
+        let length: number = this.buffer.length;
+        if (this.buffer[this.buffer.length - 1] == '\r')
+            length--;
+
         if (posOfDelimiter < 0) //not accepted whole name yet
         {
-            if (this.buffer.length > this.maxLength && !this.couldMiddlewareHandle(this.buffer)) //already arrive more symbols that require
+            if (length > this.maxLength && !this.couldMiddlewareHandle(this.buffer)) //already arrive more symbols that require
                 return Errors.overLength;
             return null;
         }
