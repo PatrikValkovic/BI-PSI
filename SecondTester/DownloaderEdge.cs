@@ -8,7 +8,7 @@ using second.Packets;
 namespace SecondTester
 {
     [TestClass]
-    public class UnitTest1
+    public class DownloaderEdge
     {
         [TestMethod]
         public void SerialBeforeEdgeOfOverflow()
