@@ -11,36 +11,47 @@ namespace SecondTester
     public class DownloaderEdge
     {
         [TestMethod]
-        public void SerialBeforeEdgeOfOverflow()
+        public void At65280Arrive65535()
         {
             Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
             PrivateObject o = new PrivateObject(d);
-            o.SetFieldOrProperty("required", (UInt64)UInt16.MaxValue-510);
-            object res = o.Invoke("receive", new CommunicationPacket(0,UInt16.MaxValue-255,0,0,new byte[] { }));
+            o.SetFieldOrProperty("required", (UInt64)65280);
+            object res = o.Invoke("receive", new CommunicationPacket(0, 65535, 0, 0, new byte[] { }));
             DownloadPacket down = (DownloadPacket)res;
-            Assert.AreEqual(down.SerialNumber,(UInt64) UInt16.MaxValue-255);
+            Assert.AreEqual(down.SerialNumber, 65535);
         }
 
         [TestMethod]
-        public void SerialAfterEdgeOfOverflow()
+        public void At65280Arrive254()
         {
             Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
             PrivateObject o = new PrivateObject(d);
-            o.SetFieldOrProperty("required", (UInt64)UInt16.MaxValue - 510);
-            object res = o.Invoke("receive", new CommunicationPacket(0, 255, 0, 0, new byte[] { }));
+            o.SetFieldOrProperty("required", (UInt64)65280);
+            object res = o.Invoke("receive", new CommunicationPacket(0, 254, 0, 0, new byte[] { }));
             DownloadPacket down = (DownloadPacket)res;
-            Assert.AreEqual(down.SerialNumber, (UInt64)UInt16.MaxValue + 255);
+            Assert.AreEqual(down.SerialNumber, (UInt64)65790);
         }
 
         [TestMethod]
-        public void SerialAtMinOfEdgeOfOverflow()
+        public void At65535Arrive65535()
         {
             Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
             PrivateObject o = new PrivateObject(d);
-            o.SetFieldOrProperty("required", (UInt64)UInt16.MaxValue - 510);
-            object res = o.Invoke("receive", new CommunicationPacket(0, UInt16.MaxValue - 510, 0, 0, new byte[] { }));
+            o.SetFieldOrProperty("required", (UInt64)65535);
+            object res = o.Invoke("receive", new CommunicationPacket(0, 65535, 0, 0, new byte[] { }));
             DownloadPacket down = (DownloadPacket)res;
-            Assert.AreEqual(down.SerialNumber, (UInt64)UInt16.MaxValue - 510);
+            Assert.AreEqual(down.SerialNumber, (UInt64)65535);
+        }
+
+        [TestMethod]
+        public void At65535Arrive509()
+        {
+            Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
+            PrivateObject o = new PrivateObject(d);
+            o.SetFieldOrProperty("required", (UInt64)65535);
+            object res = o.Invoke("receive", new CommunicationPacket(0, 509, 0, 0, new byte[] { }));
+            DownloadPacket down = (DownloadPacket)res;
+            Assert.AreEqual(down.SerialNumber, (UInt64)66045);
         }
     }
 }
