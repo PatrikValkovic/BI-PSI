@@ -9,6 +9,7 @@ using System.Threading;
 using second.Packets;
 using Priority_Queue;
 using second.Exceptions;
+using System.Diagnostics;
 
 namespace second
 {
@@ -20,7 +21,7 @@ namespace second
         private UInt32 connectionNumber;
         private UInt64 required;
 
-        private DateTime begin;
+        private Stopwatch begin;
 
         public Downloader(Socket s, BinaryWriter writer)
         {
@@ -31,7 +32,8 @@ namespace second
         public void InitConnection()
         {
             this.connectionNumber = CommunicationFacade.InitConnection(this.socket, Command.DOWNLOAD);
-            this.begin = new DateTime();
+            this.begin = new Stopwatch();
+            this.begin.Start();
         }
 
         private DownloadPacket receive(CommunicationPacket p)
@@ -104,6 +106,7 @@ namespace second
                         DownloadPacket toProccess = queue.Dequeue();
                         if (toProccess.SerialNumber < this.required)
                             continue;
+                        Logger.WriteLine($"Accepted packet {toProccess.SerialNumber}");
                         this.outFile.Write(toProccess.Data);
                         this.required += (uint)toProccess.Data.Length;
                         if (toProccess.Data.Length != 255)
@@ -122,9 +125,14 @@ namespace second
 
         public void ShowSpeed()
         {
-            TimeSpan secondElapsed = (new DateTime()) - this.begin;
+            this.begin.Stop();
             double kb = (double)this.required / 1024.0;
-            Logger.WriteLine($"Avarage speed: {kb:0.00}KB/{secondElapsed.TotalSeconds}s, total time: {secondElapsed.TotalSeconds}",ConsoleColor.Cyan);
+
+            double seconds = (double)this.begin.ElapsedMilliseconds / 1000.0;
+
+            double avarage = kb / seconds;
+
+            Logger.WriteLine($"Avarage speed: {avarage:0.00}KB/s, total time: {seconds:0.00}, size: {kb:0.00}KB",ConsoleColor.Cyan);
         }
     }
 }
