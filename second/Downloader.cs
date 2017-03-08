@@ -48,7 +48,7 @@ namespace second
             else //packet over edge of UInt16 <----MAX.........MIN---->
             {
                 UInt64 realSerial;               
-                if (p.SerialNumber >= minRequired) //  <----MAX.........MIN---P-->
+                if (p.SerialNumber >= minRequired - (uint)Sizes.WINDOW_SIZE) //  <----MAX.........MIN---P-->
                     realSerial = (UInt64)modCurrent + (UInt64)p.SerialNumber;
                 else //  <--P---MAX.........MIN----->
                     realSerial = modCurrent + (UInt64)UInt16.MaxValue + (UInt64)p.SerialNumber;
