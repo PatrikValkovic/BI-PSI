@@ -10,10 +10,12 @@ namespace second
     {
         private static object locker = new object();
 
-        public static void WriteLine(string text)
+        public static void WriteLine(string text, ConsoleColor foreground = ConsoleColor.White, ConsoleColor background = ConsoleColor.Black)
         {
             lock (locker)
             {
+                Console.BackgroundColor = background;
+                Console.ForegroundColor = foreground;
                 Console.WriteLine(text);
             }
         }
