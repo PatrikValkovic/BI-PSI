@@ -33,8 +33,8 @@ namespace second
 
         private DownloadPacket receive(CommunicationPacket p)
         {
-            UInt16 minRequired = Convert.ToUInt16((required)&UInt16.MaxValue);
-            UInt16 maxRequired = Convert.ToUInt16((required + (int)Sizes.WINDOW_SIZE)%UInt16.MaxValue);
+            UInt16 minRequired = Convert.ToUInt16(required & UInt16.MaxValue);
+            UInt16 maxRequired = Convert.ToUInt16((required + (int)Sizes.WINDOW_SIZE) & UInt16.MaxValue);
             UInt64 modCurrent = this.required - (this.required & UInt16.MaxValue);
             DownloadPacket toReturn;
 
@@ -72,7 +72,7 @@ namespace second
                     if (pack.Flags == (byte)Flag.FIN)
                     {
                         Logger.WriteLine("All data arrive", ConsoleColor.Cyan);
-                        CommunicationFacade.Send(this.socket,new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required % UInt16.MaxValue),(byte)Flag.FIN,empty));
+                        CommunicationFacade.Send(this.socket,new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required & UInt16.MaxValue),(byte)Flag.FIN,empty));
                         return;
                     }
                     if (pack.Flags == (byte)Flag.RST)
@@ -93,7 +93,7 @@ namespace second
                             Logger.WriteLine("Last packet arrive, waiting to FIN packet",ConsoleColor.Cyan);
                     }
                     Logger.WriteLine($"Waiting for packet {this.required}");
-                    CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required % UInt16.MaxValue), 0, empty));
+                    CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required & UInt16.MaxValue), 0, empty));
                 }
             }
             catch(CommunicationException)

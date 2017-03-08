@@ -26,7 +26,8 @@ namespace second
                 ip = args[0];
                 IPAddress address = InitActions.ParseAddress(ip);
 
-                using (Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
+                Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                try
                 {
                     Logger.WriteLine($"Connecting to {address}:{port}");
                     InitActions.ConnectSocket(s, address, port);
@@ -34,7 +35,7 @@ namespace second
                     if (args.Length == 1)
                     {
                         Logger.WriteLine("Download action will be use");
-                        using (var fs = new FileStream("photo.png",FileMode.Create))
+                        using (var fs = new FileStream("photo.png", FileMode.Create))
                         {
                             using (var str = new BinaryWriter(fs))
                             {
@@ -53,11 +54,23 @@ namespace second
                         }
                     }
                 }
+                finally
+                {
+                    s.Dispose();
+                }
+
             }
             catch (TerminateException)
             {
                 Logger.WriteLine("Program will be terminated", ConsoleColor.Yellow);
-                return;
+            }
+            catch (MaximumAttempException)
+            {
+                Logger.WriteLine("Program performed maximum attempts", ConsoleColor.Yellow);
+            }
+            catch (Exception e)
+            {
+                Logger.WriteLine($"Global exception '{e.Message}'", ConsoleColor.White, ConsoleColor.Red);
             }
             finally
             {
