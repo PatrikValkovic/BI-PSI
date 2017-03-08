@@ -62,7 +62,7 @@ namespace SecondTester
             o.SetFieldOrProperty("required", (UInt64)66045);
             object res = o.Invoke("receive", new CommunicationPacket(0, 65535, 0, 0, new byte[] { }));
             DownloadPacket down = (DownloadPacket)res;
-            Assert.AreEqual((UInt64)655353, down.SerialNumber);
+            Assert.AreEqual((UInt64)65535, down.SerialNumber);
         }
 
         [TestMethod]

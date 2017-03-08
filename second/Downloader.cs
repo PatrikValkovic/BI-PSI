@@ -39,9 +39,16 @@ namespace second
             DownloadPacket toReturn;
 
             Logger.WriteLine($"MinAccept: {minRequired}, MaxAccept: {maxRequired}");
-            if (minRequired < maxRequired)
+            if (minRequired < maxRequired) // ......MIN--------MAX......
             {
-                toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, modCurrent + (UInt64)p.SerialNumber);
+                if (maxRequired < p.SerialNumber) // .....MIN-------MAX....P...
+                {
+                    modCurrent--;
+                    UInt64 modPrev = modCurrent - (modCurrent & UInt16.MaxValue);
+                    toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, modPrev + (UInt64)p.SerialNumber);
+                }
+                else // ....MIN---P----MAX....    OR    ...P...MIN-------MAX..... 
+                    toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, modCurrent + (UInt64)p.SerialNumber);
             }
             //                                                 CUR  
             //                                                  V

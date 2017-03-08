@@ -38,7 +38,7 @@ namespace SecondTester
             Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
             PrivateObject o = new PrivateObject(d);
             o.SetFieldOrProperty("required", (UInt64)131070);
-            object res = o.Invoke("receive", new CommunicationPacket(0, 65535, 0, 0, new byte[] { }));
+            object res = o.Invoke("receive", new CommunicationPacket(0, 65534, 0, 0, new byte[] { }));
             DownloadPacket down = (DownloadPacket)res;
             Assert.AreEqual((UInt64)131070, down.SerialNumber);
         }
