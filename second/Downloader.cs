@@ -58,6 +58,11 @@ namespace second
             return toReturn;
         }
 
+        private DownloadPacket validatePacket(DownloadPacket p)
+        {
+            return p;
+        }
+
         public void AcceptFile()
         {
             try
@@ -69,6 +74,8 @@ namespace second
                 while (true)
                 {
                     DownloadPacket pack = this.receive(CommunicationFacade.Receive(this.socket));
+                    pack = this.validatePacket(pack);
+
                     if (pack.Flags == (byte)Flag.FIN)
                     {
                         Logger.WriteLine("All data arrive", ConsoleColor.Cyan);
