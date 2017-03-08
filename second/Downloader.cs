@@ -13,13 +13,13 @@ namespace second
 {
     class Downloader
     {
-        private StreamWriter outFile;
+        private TextWriter outFile;
         private Socket socket;
 
         private UInt32 connectionNumber;
         private UInt64 required;
 
-        public Downloader(Socket s, StreamWriter writer)
+        public Downloader(Socket s, TextWriter writer)
         {
             this.outFile = writer;
             this.socket = s;
@@ -28,11 +28,6 @@ namespace second
         public void InitConnection()
         {
             this.connectionNumber = CommunicationFacade.InitConnection(this.socket, Command.DOWNLOAD);
-        }
-
-        public void test()
-        {
-
         }
 
         private DownloadPacket receive(CommunicationPacket p)
@@ -52,11 +47,11 @@ namespace second
             else //packet over edge of UInt16 <----MAX.........MIN---->
             {
                 UInt64 realSerial;               
-                if (p.SerialNumber > minRequired) //  <----MAX.........MIN---P-->
+                if (p.SerialNumber >= minRequired) //  <----MAX.........MIN---P-->
                     realSerial = (UInt64)modCurrent + (UInt64)p.SerialNumber;
                 else //  <--P---MAX.........MIN----->
                     realSerial = modCurrent + (UInt64)UInt16.MaxValue + (UInt64)p.SerialNumber;
-                toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, modCurrent + (UInt32)UInt16.MaxValue + (UInt32)p.SerialNumber);
+                toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, realSerial);
             }
             Logger.WriteLine($"Downloader recive packet with serial={toReturn.SerialNumber}");
             return toReturn;
