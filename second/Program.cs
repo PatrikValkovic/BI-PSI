@@ -17,7 +17,7 @@ namespace second
         {
             try
             {
-                string ip = "192.168.56.101";
+                string ip = "127.0.0.1";
                 int port = 4000;
 
                 args = InitActions.ValidateArgs(args, ip);
