@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using second.Packets;
+using Priority_Queue;
 
 namespace second
 {
@@ -29,19 +30,32 @@ namespace second
             this.connectionNumber = CommunicationFacade.InitConnection(this.socket, Command.DOWNLOAD);
         }
 
-        private DownloadPacket receive()
+        public void test()
         {
-            CommunicationPacket p = CommunicationFacade.Receive(this.socket);
-            UInt16 minRequired = Convert.ToUInt16(required);
-            UInt16 maxRequired = Convert.ToUInt16(required + (int)Sizes.WINDOW_SIZE);
+
+        }
+
+        private DownloadPacket receive(CommunicationPacket p)
+        {
+            UInt16 minRequired = Convert.ToUInt16((required)&UInt16.MaxValue);
+            UInt16 maxRequired = Convert.ToUInt16((required + (int)Sizes.WINDOW_SIZE)%UInt16.MaxValue);
             UInt64 modCurrent = this.required - (this.required & UInt16.MaxValue);
             DownloadPacket toReturn;
+
+            Logger.WriteLine($"MinAccept: {minRequired}, MaxAccept: {maxRequired}");
             if (minRequired < maxRequired)
             {
-                toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, (UInt32)modCurrent + (UInt32)p.SerialNumber);
+                toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, (UInt64)modCurrent + (UInt64)p.SerialNumber);
             }
-            else
+                 //                                            CUR  
+                 //                                             V
+            else //packet over edge of UInt16 <----MAX.........MIN---->
             {
+                UInt64 realSerial;               
+                if (p.SerialNumber > minRequired) //  <----MAX.........MIN---P-->
+                    realSerial = (UInt64)modCurrent + (UInt64)p.SerialNumber;
+                else //  <--P---MAX.........MIN----->
+                    realSerial = modCurrent + (UInt64)UInt16.MaxValue + (UInt64)p.SerialNumber;
                 toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, modCurrent + (UInt32)UInt16.MaxValue + (UInt32)p.SerialNumber);
             }
             Logger.WriteLine($"Downloader recive packet with serial={toReturn.SerialNumber}");
@@ -51,27 +65,31 @@ namespace second
         public void AcceptFile()
         {
             byte[] empty = new byte[] { };
+            IPriorityQueue<DownloadPacket, UInt64> queue = new SimplePriorityQueue<DownloadPacket, UInt64>();
             //TODO add priority queue
-            required = 0;
 
             while (true)
             {
-                DownloadPacket pack = this.receive();
+                DownloadPacket pack = this.receive(CommunicationFacade.Receive(this.socket));
+                queue.Enqueue(pack,pack.SerialNumber);
                 
                 //Attach into priority queue
-
-                while (PacketsToProccess.First != null && PacketsToProccess.First.Value.SerialNumber <= required)
+                while (queue.Count > 0 && queue.First.SerialNumber <= this.required)
                 {
-                    DownloadPacket toProccess = PacketsToProccess.First.Value;
-                    PacketsToProccess.RemoveFirst();
-                    if (toProccess.SerialNumber < required)
+                    DownloadPacket toProccess = queue.Dequeue();
+                    if (toProccess.SerialNumber < this.required)
                         continue;
                     this.outFile.Write(toProccess.Data);
-                    required += (uint)toProccess.Data.Length;
+                    this.required += (uint)toProccess.Data.Length;
                     if (toProccess.Data.Length != 255)
+                    {
+                        //TODO remove
+                        Logger.WriteLine("Last packet arrive");
                         return;
+                    }
                 }
-                CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(required), 0, empty));
+                Logger.WriteLine($"Waiting for packet {this.required}");
+                CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required & UInt16.MaxValue), 0, empty));
             }
         }
     }
