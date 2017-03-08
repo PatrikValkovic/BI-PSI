@@ -42,6 +42,7 @@ namespace second
                                 Downloader d = new Downloader(s, str);
                                 d.InitConnection();
                                 d.AcceptFile();
+                                d.ShowSpeed();
                             }
                         }
                     }

@@ -20,6 +20,8 @@ namespace second
         private UInt32 connectionNumber;
         private UInt64 required;
 
+        private DateTime begin;
+
         public Downloader(Socket s, BinaryWriter writer)
         {
             this.outFile = writer;
@@ -29,6 +31,7 @@ namespace second
         public void InitConnection()
         {
             this.connectionNumber = CommunicationFacade.InitConnection(this.socket, Command.DOWNLOAD);
+            this.begin = new DateTime();
         }
 
         private DownloadPacket receive(CommunicationPacket p)
@@ -115,6 +118,13 @@ namespace second
                 Logger.WriteLine("Occurs error during communication", ConsoleColor.Yellow);
                 throw new TerminateException();
             }
+        }
+
+        public void ShowSpeed()
+        {
+            TimeSpan secondElapsed = (new DateTime()) - this.begin;
+            double kb = (double)this.required / 1024.0;
+            Logger.WriteLine($"Avarage speed: {kb:0.00}KB/{secondElapsed.TotalSeconds}s, total time: {secondElapsed.TotalSeconds}",ConsoleColor.Cyan);
         }
     }
 }
