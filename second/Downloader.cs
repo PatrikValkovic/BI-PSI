@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using second.Packets;
 using Priority_Queue;
+using second.Exceptions;
 
 namespace second
 {
@@ -59,32 +60,50 @@ namespace second
 
         public void AcceptFile()
         {
-            byte[] empty = new byte[] { };
-            IPriorityQueue<DownloadPacket, UInt64> queue = new SimplePriorityQueue<DownloadPacket, UInt64>();
-            //TODO add priority queue
-
-            while (true)
+            try
             {
-                DownloadPacket pack = this.receive(CommunicationFacade.Receive(this.socket));
-                queue.Enqueue(pack,pack.SerialNumber);
-                
-                //Attach into priority queue
-                while (queue.Count > 0 && queue.First.SerialNumber <= this.required)
+                byte[] empty = new byte[] { };
+                IPriorityQueue<DownloadPacket, UInt64> queue = new SimplePriorityQueue<DownloadPacket, UInt64>();
+                //TODO add priority queue
+
+                while (true)
                 {
-                    DownloadPacket toProccess = queue.Dequeue();
-                    if (toProccess.SerialNumber < this.required)
-                        continue;
-                    this.outFile.Write(toProccess.Data);
-                    this.required += (uint)toProccess.Data.Length;
-                    if (toProccess.Data.Length != 255)
+                    DownloadPacket pack = this.receive(CommunicationFacade.Receive(this.socket));
+                    if (pack.Flags == (byte)Flag.FIN)
                     {
-                        //TODO remove
-                        Logger.WriteLine("Last packet arrive");
+                        Logger.WriteLine("All data arrive", ConsoleColor.Cyan);
+                        CommunicationFacade.Send(this.socket,new CommunicationPacket(this.connectionNumber, Convert.ToUInt16(this.required % UInt16.MaxValue), Convert.ToUInt16(this.required % UInt16.MaxValue),(byte)Flag.FIN,empty));
                         return;
                     }
+                    if (pack.Flags == (byte)Flag.RST)
+                        throw new CommunicationException();
+
+
+                    queue.Enqueue(pack, pack.SerialNumber);
+
+                    //Attach into priority queue
+                    while (queue.Count > 0 && queue.First.SerialNumber <= this.required)
+                    {
+                        DownloadPacket toProccess = queue.Dequeue();
+                        if (toProccess.SerialNumber < this.required)
+                            continue;
+                        this.outFile.Write(toProccess.Data);
+                        this.required += (uint)toProccess.Data.Length;
+                        if (toProccess.Data.Length != 255)
+                        {
+                            //TODO remove
+                            Logger.WriteLine("Last packet arrive");
+                            return;
+                        }
+                    }
+                    Logger.WriteLine($"Waiting for packet {this.required}");
+                    CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required % UInt16.MaxValue), 0, empty));
                 }
-                Logger.WriteLine($"Waiting for packet {this.required}");
-                CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required & UInt16.MaxValue), 0, empty));
+            }
+            catch(CommunicationException)
+            {
+                Logger.WriteLine("Occurs error during communication",ConsoleColor.Yellow);
+                throw new TerminateException();
             }
         }
     }

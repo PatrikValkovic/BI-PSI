@@ -53,11 +53,12 @@ namespace second
             }
             catch (TerminateException)
             {
-                Logger.WriteLine("Program will be terminated");
+                Logger.WriteLine("Program will be terminated",ConsoleColor.Yellow);
+                return;
             }
             finally
             {
-                Logger.WriteLine("End");
+                Logger.WriteLine("End",ConsoleColor.Cyan);
                 Console.ReadKey();
             }
         }
