@@ -13,7 +13,7 @@ namespace SecondTester
         [TestMethod]
         public void SerialBeforeEdgeOfOverflow()
         {
-            Downloader d = new Downloader(null,new StringWriter());
+            Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
             PrivateObject o = new PrivateObject(d);
             o.SetFieldOrProperty("required", (UInt64)UInt16.MaxValue-510);
             object res = o.Invoke("receive", new CommunicationPacket(0,UInt16.MaxValue-255,0,0,new byte[] { }));
@@ -24,7 +24,7 @@ namespace SecondTester
         [TestMethod]
         public void SerialAfterEdgeOfOverflow()
         {
-            Downloader d = new Downloader(null, new StringWriter());
+            Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
             PrivateObject o = new PrivateObject(d);
             o.SetFieldOrProperty("required", (UInt64)UInt16.MaxValue - 510);
             object res = o.Invoke("receive", new CommunicationPacket(0, 255, 0, 0, new byte[] { }));
@@ -35,7 +35,7 @@ namespace SecondTester
         [TestMethod]
         public void SerialAtMinOfEdgeOfOverflow()
         {
-            Downloader d = new Downloader(null, new StringWriter());
+            Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
             PrivateObject o = new PrivateObject(d);
             o.SetFieldOrProperty("required", (UInt64)UInt16.MaxValue - 510);
             object res = o.Invoke("receive", new CommunicationPacket(0, UInt16.MaxValue - 510, 0, 0, new byte[] { }));

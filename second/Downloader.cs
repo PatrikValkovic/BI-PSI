@@ -14,13 +14,13 @@ namespace second
 {
     class Downloader
     {
-        private TextWriter outFile;
+        private BinaryWriter outFile;
         private Socket socket;
 
         private UInt32 connectionNumber;
         private UInt64 required;
 
-        public Downloader(Socket s, TextWriter writer)
+        public Downloader(Socket s, BinaryWriter writer)
         {
             this.outFile = writer;
             this.socket = s;
@@ -72,7 +72,7 @@ namespace second
                     if (pack.Flags == (byte)Flag.FIN)
                     {
                         Logger.WriteLine("All data arrive", ConsoleColor.Cyan);
-                        CommunicationFacade.Send(this.socket,new CommunicationPacket(this.connectionNumber, Convert.ToUInt16(this.required % UInt16.MaxValue), Convert.ToUInt16(this.required % UInt16.MaxValue),(byte)Flag.FIN,empty));
+                        CommunicationFacade.Send(this.socket,new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required % UInt16.MaxValue),(byte)Flag.FIN,empty));
                         return;
                     }
                     if (pack.Flags == (byte)Flag.RST)
@@ -90,11 +90,7 @@ namespace second
                         this.outFile.Write(toProccess.Data);
                         this.required += (uint)toProccess.Data.Length;
                         if (toProccess.Data.Length != 255)
-                        {
-                            //TODO remove
-                            Logger.WriteLine("Last packet arrive");
-                            return;
-                        }
+                            Logger.WriteLine("Last packet arrive, waiting to FIN packet",ConsoleColor.Cyan);
                     }
                     Logger.WriteLine($"Waiting for packet {this.required}");
                     CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required % UInt16.MaxValue), 0, empty));

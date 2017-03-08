@@ -25,20 +25,23 @@ namespace second
                 //ip validation
                 ip = args[0];
                 IPAddress address = InitActions.ParseAddress(ip);
-                
+
                 using (Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp))
                 {
                     Logger.WriteLine($"Connecting to {address}:{port}");
-                    InitActions.ConnectSocket(s,address,port);
+                    InitActions.ConnectSocket(s, address, port);
 
                     if (args.Length == 1)
                     {
                         Logger.WriteLine("Download action will be use");
-                        using (var str = new StreamWriter(File.OpenWrite("photo.png")))
+                        using (var fs = new FileStream("photo.png",FileMode.Create))
                         {
-                            Downloader d = new Downloader(s, str);
-                            d.InitConnection();
-                            d.AcceptFile();
+                            using (var str = new BinaryWriter(fs))
+                            {
+                                Downloader d = new Downloader(s, str);
+                                d.InitConnection();
+                                d.AcceptFile();
+                            }
                         }
                     }
                     else if (args.Length == 2)
@@ -53,12 +56,12 @@ namespace second
             }
             catch (TerminateException)
             {
-                Logger.WriteLine("Program will be terminated",ConsoleColor.Yellow);
+                Logger.WriteLine("Program will be terminated", ConsoleColor.Yellow);
                 return;
             }
             finally
             {
-                Logger.WriteLine("End",ConsoleColor.Cyan);
+                Logger.WriteLine("End", ConsoleColor.Cyan);
                 Console.ReadKey();
             }
         }
