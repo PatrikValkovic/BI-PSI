@@ -35,7 +35,7 @@ namespace second
         {
             UInt16 minRequired = Convert.ToUInt16(required & UInt16.MaxValue);
             UInt16 maxRequired = Convert.ToUInt16((required + (int)Sizes.WINDOW_SIZE) & UInt16.MaxValue);
-            UInt64 modCurrent = this.required - (this.required & UInt16.MaxValue);
+            UInt64 modCurrent = this.required - (this.required % UInt16.MaxValue);
             DownloadPacket toReturn;
 
             Logger.WriteLine($"MinAccept: {minRequired}, MaxAccept: {maxRequired}");
@@ -43,15 +43,15 @@ namespace second
             {
                 toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, (UInt64)modCurrent + (UInt64)p.SerialNumber);
             }
-                 //                                            CUR  
-                 //                                             V
+            //                                            CUR  
+            //                                             V
             else //packet over edge of UInt16 <----MAX.........MIN---->
             {
-                UInt64 realSerial;               
-                if (p.SerialNumber >= minRequired - (uint)Sizes.WINDOW_SIZE) //  <----MAX.........MIN---P-->
-                    realSerial = (UInt64)modCurrent + (UInt64)p.SerialNumber;
-                else //  <--P---MAX.........MIN----->
+                UInt64 realSerial;
+                if (p.SerialNumber <= maxRequired)   //  <--P---MAX.........MIN----->
                     realSerial = modCurrent + (UInt64)UInt16.MaxValue + (UInt64)p.SerialNumber;
+                else //  <----MAX.........MIN---P-->     or posibbly     <-----MAX......X..MIN----->
+                    realSerial = (UInt64)modCurrent + (UInt64)p.SerialNumber;
                 toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, realSerial);
             }
             Logger.WriteLine($"Downloader recive packet with serial={toReturn.SerialNumber}");
@@ -72,7 +72,7 @@ namespace second
                     if (pack.Flags == (byte)Flag.FIN)
                     {
                         Logger.WriteLine("All data arrive", ConsoleColor.Cyan);
-                        CommunicationFacade.Send(this.socket,new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required & UInt16.MaxValue),(byte)Flag.FIN,empty));
+                        CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required & UInt16.MaxValue), (byte)Flag.FIN, empty));
                         return;
                     }
                     if (pack.Flags == (byte)Flag.RST)
@@ -90,15 +90,15 @@ namespace second
                         this.outFile.Write(toProccess.Data);
                         this.required += (uint)toProccess.Data.Length;
                         if (toProccess.Data.Length != 255)
-                            Logger.WriteLine("Last packet arrive, waiting to FIN packet",ConsoleColor.Cyan);
+                            Logger.WriteLine("Last packet arrive, waiting to FIN packet", ConsoleColor.Cyan);
                     }
                     Logger.WriteLine($"Waiting for packet {this.required}");
                     CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required & UInt16.MaxValue), 0, empty));
                 }
             }
-            catch(CommunicationException)
+            catch (CommunicationException)
             {
-                Logger.WriteLine("Occurs error during communication",ConsoleColor.Yellow);
+                Logger.WriteLine("Occurs error during communication", ConsoleColor.Yellow);
                 throw new TerminateException();
             }
         }

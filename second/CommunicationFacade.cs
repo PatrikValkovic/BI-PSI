@@ -11,7 +11,7 @@ namespace second
     class CommunicationFacade
     {
         private static StringBuilder log = new StringBuilder();
-        private static string getDataInString(byte[] data)
+        public static string getDataInString(byte[] data)
         {
             log.Clear();
             if (data.Length > 16)
