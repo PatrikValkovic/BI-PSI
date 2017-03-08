@@ -50,7 +50,7 @@ namespace second
                 confirmationNumber = BitConverter.ToUInt16(BitConverter.GetBytes(confirmationNumber).Reverse().ToArray(),0);
             }
 
-            Logger.WriteLine($"RECV from={connectionNumber:X} seq={serialNumber} conf={confirmationNumber} flags={Convert.ToString(flags,2)} data({data.Length})={getDataInString(data)}");
+            Logger.WriteLine($"RECV from={connectionNumber:X} seq={serialNumber} conf={confirmationNumber} flags={Convert.ToString(flags,2)} data({data.Length})={getDataInString(data)}",ConsoleColor.Red);
             return new CommunicationPacket(connectionNumber,serialNumber,confirmationNumber,flags,data);
         }
 
@@ -60,7 +60,7 @@ namespace second
             if (p.Data.Length > 255)
                 throw new ArgumentException("Data have more then 255 bytes");
 
-            Logger.WriteLine($"SEND from={p.ConnectionNumber:X} seq={p.SerialNumber} conf={p.ConfirmationNumber} flags={Convert.ToString(p.Flags, 2)} data({p.Data.Length})={getDataInString(p.Data)}");
+            Logger.WriteLine($"SEND from={p.ConnectionNumber:X} seq={p.SerialNumber} conf={p.ConfirmationNumber} flags={Convert.ToString(p.Flags, 2)} data({p.Data.Length})={getDataInString(p.Data)}",ConsoleColor.Green);
 
             //Fucking rotate it, because that fucking image send data as fucking big endian
             UInt32 connectionNumber = p.ConnectionNumber;
