@@ -35,16 +35,16 @@ namespace second
         {
             UInt16 minRequired = Convert.ToUInt16(required & UInt16.MaxValue);
             UInt16 maxRequired = Convert.ToUInt16((required + (ulong)Sizes.WINDOW_SIZE) & UInt16.MaxValue);
-            UInt64 modCurrent = this.required - (this.required % UInt16.MaxValue);
+            UInt64 modCurrent = this.required - (this.required & UInt16.MaxValue);
             DownloadPacket toReturn;
 
             Logger.WriteLine($"MinAccept: {minRequired}, MaxAccept: {maxRequired}");
             if (minRequired < maxRequired)
             {
-                toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, (UInt64)modCurrent + (UInt64)p.SerialNumber);
+                toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, modCurrent + (UInt64)p.SerialNumber);
             }
-            //                                            CUR  
-            //                                             V
+            //                                                 CUR  
+            //                                                  V
             else //packet over edge of UInt16 <----MAX.........MIN---->
             {
                 UInt64 realSerial;
