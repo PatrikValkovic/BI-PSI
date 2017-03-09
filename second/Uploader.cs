@@ -60,9 +60,9 @@ namespace second
                 p = null;
 
                 //check the oldest packet
-                lock(data.SendedPackets)
+                lock (data.SendedPackets)
                 {
-                    if(data.SendedPackets.Count > 0 && (new DateTime() - data.SendedPackets.Peek().LastSend).TotalMilliseconds >= (ushort)PacketsProps.WAIT_TIME)
+                    if (data.SendedPackets.Count > 0 && (new DateTime() - data.SendedPackets.Peek().LastSend).TotalMilliseconds >= (ushort)PacketsProps.WAIT_TIME)
                     {
                         p = data.SendedPackets.Dequeue();
                     }
@@ -77,7 +77,7 @@ namespace second
                     if (p.Sended == (ushort)PacketsProps.MAX_ATTEMPS)
                         throw new MaximumAttempException();
                     Logger.WriteLine($"Packet {p.SerialNumber} timeouted, sends again");
-                    CommunicationFacade.Send(data.Socket,p.CreatePacketToSend());
+                    CommunicationFacade.Send(data.Socket, p.CreatePacketToSend());
                     lock (data.SendedPackets)
                         data.SendedPackets.Enqueue(p);
                 }
@@ -97,12 +97,18 @@ namespace second
             SharedObject data = (SharedObject)param;
             while (!data.Ended)
             {
-                CommunicationPacket p = CommunicationFacade.Receive(data.Socket);
-                //TODO validation?
-                lock (data.ArriveQueue)
+                data.Socket.ReceiveTimeout = (int)PacketsProps.WAIT_TIME;
+                try
                 {
-                    data.ArriveQueue.Enqueue(p);
+                    CommunicationPacket p = CommunicationFacade.Receive(data.Socket);
+                    //TODO validation?
+                    lock (data.ArriveQueue)
+                    {
+                        data.ArriveQueue.Enqueue(p);
+                    }
                 }
+                catch (SocketException e) when (e.SocketErrorCode == SocketError.TimedOut)
+                { }
             }
         }
 
@@ -114,6 +120,7 @@ namespace second
             Task receive = new Task(ReceiveThread, shared);
             Task dataProccess = new Task(ProccessDataThread, shared);
             Task[] tasks = new Task[] { timeoutChecker, receive, dataProccess };
+
             try
             {
                 foreach (Task t in tasks)
@@ -125,10 +132,10 @@ namespace second
                 Task whoEndIt = waiter.Result;
                 //TODO do something?
 
-                shared.Ended = true;
             }
             finally
             {
+                shared.Ended = true;
                 foreach (Task t in tasks)
                 {
                     t.Wait();
