@@ -17,7 +17,7 @@ namespace second
     }
 
     [Flags]
-    public enum Sizes : int
+    public enum Sizes : uint
     {
         HEADER_SIZE = 9,
         PACKET_MIN = 9,
@@ -26,5 +26,11 @@ namespace second
         MAX_DATA = 255,
         WINDOW_SIZE = 2040,
         WINDOW_PACKETS = WINDOW_SIZE / MAX_DATA
+    }
+
+    public enum PacketsProps : ushort
+    {
+        WAIT_TIME = 100,
+        MAX_ATTEMPS = 20
     }
 }
