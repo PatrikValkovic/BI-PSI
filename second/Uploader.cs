@@ -45,7 +45,7 @@ namespace second
             public ushort ThisConfirmedTimes = 0;
             public Socket Socket;
             public Queue<CommunicationPacket> ArriveQueue = new Queue<CommunicationPacket>();
-            public Queue<UploadSendPacket> SendedPackets = new Queue<UploadSendPacket>();
+            public LinkedList<UploadSendPacket> SendedPackets = new LinkedList<UploadSendPacket>();
 
             public volatile bool Ended = false;
         }
@@ -62,9 +62,10 @@ namespace second
                 //check the oldest packet
                 lock (data.SendedPackets)
                 {
-                    if (data.SendedPackets.Count > 0 && (new DateTime() - data.SendedPackets.Peek().LastSend).TotalMilliseconds >= (ushort)PacketsProps.WAIT_TIME)
+                    if (data.SendedPackets.Count > 0 && (new DateTime() - data.SendedPackets.First.Value.LastSend).TotalMilliseconds >= (ushort)PacketsProps.WAIT_TIME)
                     {
-                        p = data.SendedPackets.Dequeue();
+                        p = data.SendedPackets.First.Value;
+                        data.SendedPackets.RemoveFirst();
                     }
                 }
 
@@ -88,7 +89,7 @@ namespace second
                         Logger.WriteLine($"Packet {p.SerialNumber} timeouted, sends again");
                         CommunicationFacade.Send(data.Socket, p.CreatePacketToSend());
                         lock (data.SendedPackets)
-                            data.SendedPackets.Enqueue(p);
+                            data.SendedPackets.AddLast(p);
                     }
                 }
                 else //timeout not expired for the oldest packet
