@@ -31,6 +31,11 @@ namespace second
 
         public UInt64 Sended { get { return this.windowBegin; } }
 
+        private class SharedObject
+        {
+
+        }
+
         static private void TimeoutCheckerThread(object Param)
         {
             Logger.WriteLine("TimeoutChecker thread started");
@@ -48,17 +53,13 @@ namespace second
 
         public void SendFile()
         {
-            Thread timeoutChecker = new Thread(TimeoutCheckerThread);
-            Thread receiver = new Thread(ReceiveThread);
-            Thread processData = new Thread(ProccessDataThread);
+            SharedObject shared = new SharedObject();
 
-            receiver.Start(new object());
-            timeoutChecker.Start(new object());
-            processData.Start(new object());
+            Task timeoutChecker = new Task(TimeoutCheckerThread,shared);
+            Task receive = new Task(ReceiveThread, shared);
+            Task dataProccess = new Task(ProccessDataThread, shared);
 
-            receiver.Join();
-            timeoutChecker.Join();
-            processData.Join();
+            Task ended = Task.WhenAny(timeoutChecker, receive,dataProccess);
         }
     }
 }
