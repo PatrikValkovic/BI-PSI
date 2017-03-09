@@ -12,15 +12,16 @@ namespace second
 {
     class InitActions
     {
-        public static string[] ValidateArgs(string[] args, string ip)
+        public static string[] ValidateArgs(string[] args, string ip, string file)
         {
             if (args.Length == 0 || args.Length > 2)
             {
                 Logger.WriteLine("Usage: second <ip> [<file>]");
-                Logger.WriteLine($"Default action will be use: download form ip {ip}");
-                return new string[] { ip };
+                Logger.WriteLine($"Default action will be use: upload file {file} to ip {ip}");
+                args = new string[] { ip, file };
             }
-            if(args.Length == 2)
+            ParseAddress(args[0]);
+            if (args.Length == 2)
             {
                 if (!File.Exists(args[1]))
                 {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -11,12 +12,24 @@ namespace second
 {
     class Uploader
     {
-        private StreamReader inFile;
+        private BinaryReader inFile;
         private Socket socket;
-        public Uploader(Socket s, StreamReader reader)
+
+        private UInt32 connectionNumber;
+
+        private Stopwatch begin;
+
+        public Uploader(Socket s, BinaryReader reader)
         {
             this.inFile = reader;
             this.socket = s;
+        }
+
+        public void InitConnection()
+        {
+            this.connectionNumber = CommunicationFacade.InitConnection(this.socket, Command.UPLOAD);
+            this.begin = new Stopwatch();
+            this.begin.Start();
         }
 
         static private void TimeoutCheckerThread(object Param)

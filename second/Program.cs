@@ -17,14 +17,13 @@ namespace second
         {
             try
             {
-                string ip = "127.0.0.1";
+                string ip;
+                string file;
                 int port = 4000;
 
-                args = InitActions.ValidateArgs(args, ip);
+                args = InitActions.ValidateArgs(args, "127.0.0.1","firmware.bin");
 
-                //ip validation
-                ip = args[0];
-                IPAddress address = InitActions.ParseAddress(ip);
+                IPAddress address = InitActions.ParseAddress(args[0]);
 
                 Socket s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 try
@@ -48,10 +47,12 @@ namespace second
                     }
                     else if (args.Length == 2)
                     {
-                        Logger.WriteLine($"Firmware upload action will be use with file {args[1]}");
+                        file = args[1];
+                        Logger.WriteLine($"Firmware upload action will be use with file {file}");
                         using (var str = new StreamReader(File.OpenRead(args[1])))
                         {
                             Uploader d = new Uploader(s, str);
+                            d.InitConnection();
                         }
                     }
                 }
