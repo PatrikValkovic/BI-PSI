@@ -13,67 +13,43 @@ namespace SecondTester
         [TestMethod]
         public void At130815Arrive65534()
         {
-            Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
-            PrivateObject o = new PrivateObject(d);
-            o.SetFieldOrProperty("required", (UInt64)130815);
-            object res = o.Invoke("receive", new CommunicationPacket(0, 65534, 0, 0, new byte[] { }));
-            DownloadPacket down = (DownloadPacket)res;
-            Assert.AreEqual((UInt64)131070, down.SerialNumber);
+            UInt64 real = CommunicationFacade.ComputeRealNumber(65534, 130815, UInt16.MaxValue, (uint)Sizes.WINDOW_SIZE);
+            Assert.AreEqual((UInt64)131070, real);
         }
 
         [TestMethod]
         public void At130815Arrive253()
         {
-            Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
-            PrivateObject o = new PrivateObject(d);
-            o.SetFieldOrProperty("required", (UInt64)130815);
-            object res = o.Invoke("receive", new CommunicationPacket(0, 253, 0, 0, new byte[] { }));
-            DownloadPacket down = (DownloadPacket)res;
-            Assert.AreEqual((UInt64)131325, down.SerialNumber);
+            UInt64 real = CommunicationFacade.ComputeRealNumber(253, 130815, UInt16.MaxValue, (uint)Sizes.WINDOW_SIZE);
+            Assert.AreEqual((UInt64)131325, real);
         }
 
         [TestMethod]
         public void At131070Arrive65534()
         {
-            Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
-            PrivateObject o = new PrivateObject(d);
-            o.SetFieldOrProperty("required", (UInt64)131070);
-            object res = o.Invoke("receive", new CommunicationPacket(0, 65534, 0, 0, new byte[] { }));
-            DownloadPacket down = (DownloadPacket)res;
-            Assert.AreEqual((UInt64)131070, down.SerialNumber);
+            UInt64 real = CommunicationFacade.ComputeRealNumber(65534, 131070, UInt16.MaxValue, (uint)Sizes.WINDOW_SIZE);
+            Assert.AreEqual((UInt64)131070, real);
         }
 
         [TestMethod]
         public void At131070Arrive508()
         {
-            Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
-            PrivateObject o = new PrivateObject(d);
-            o.SetFieldOrProperty("required", (UInt64)131070);
-            object res = o.Invoke("receive", new CommunicationPacket(0, 508, 0, 0, new byte[] { }));
-            DownloadPacket down = (DownloadPacket)res;
-            Assert.AreEqual((UInt64)131580, down.SerialNumber);
+            UInt64 real = CommunicationFacade.ComputeRealNumber(508, 131070, UInt16.MaxValue, (uint)Sizes.WINDOW_SIZE);
+            Assert.AreEqual((UInt64)131580, real);
         }
 
         [TestMethod]
         public void At131325Arrive655534()
         {
-            Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
-            PrivateObject o = new PrivateObject(d);
-            o.SetFieldOrProperty("required", (UInt64)131325);
-            object res = o.Invoke("receive", new CommunicationPacket(0, 65534, 0, 0, new byte[] { }));
-            DownloadPacket down = (DownloadPacket)res;
-            Assert.AreEqual((UInt64)131070, down.SerialNumber);
+            UInt64 real = CommunicationFacade.ComputeRealNumber(65534, 131325, UInt16.MaxValue, (uint)Sizes.WINDOW_SIZE);
+            Assert.AreEqual((UInt64)131070, real);
         }
 
         [TestMethod]
         public void At131325Arrive508()
         {
-            Downloader d = new Downloader(null, new BinaryWriter(new MemoryStream()));
-            PrivateObject o = new PrivateObject(d);
-            o.SetFieldOrProperty("required", (UInt64)131325);
-            object res = o.Invoke("receive", new CommunicationPacket(0, 508, 0, 0, new byte[] { }));
-            DownloadPacket down = (DownloadPacket)res;
-            Assert.AreEqual((UInt64)131580, down.SerialNumber);
+            UInt64 real = CommunicationFacade.ComputeRealNumber(508, 131325, UInt16.MaxValue, (uint)Sizes.WINDOW_SIZE);
+            Assert.AreEqual((UInt64)131580, real);
         }
     }
 }
