@@ -17,8 +17,6 @@ namespace second
         {
             try
             {
-                string ip;
-                string file;
                 int port = 4000;
 
                 args = InitActions.ValidateArgs(args, "127.0.0.1","firmware.bin");
@@ -47,12 +45,15 @@ namespace second
                     }
                     else if (args.Length == 2)
                     {
-                        file = args[1];
+                        string file = args[1];
                         Logger.WriteLine($"Firmware upload action will be use with file {file}");
-                        using (var str = new StreamReader(File.OpenRead(args[1])))
+                        using (var fs = new FileStream(file, FileMode.Open))
                         {
-                            Uploader d = new Uploader(s, str);
-                            d.InitConnection();
+                            using (var str = new BinaryReader(fs))
+                            {
+                                Uploader d = new Uploader(s, str);
+                                d.InitConnection();
+                            }
                         }
                     }
                 }

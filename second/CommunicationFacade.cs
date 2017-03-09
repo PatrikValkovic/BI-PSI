@@ -137,7 +137,6 @@ namespace second
             //                                                  V
             else //packet over edge of UInt16 <----MAX.........MIN---->
             {
-                UInt64 realSerial;
                 if (PointToRecompute <= maxRequired)   //  <--P---MAX.........MIN----->
                     toReturn = modCurrent + MaxValue + PointToRecompute + 1;
                 else //  <----MAX.........MIN---P-->     or posibbly     <-----MAX......X..MIN----->
