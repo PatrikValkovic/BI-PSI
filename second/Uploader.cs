@@ -51,15 +51,32 @@ namespace second
             Logger.WriteLine("Receive thread started");
         }
 
-        public void SendFile()
+        public async void SendFile()
         {
             SharedObject shared = new SharedObject();
 
             Task timeoutChecker = new Task(TimeoutCheckerThread,shared);
             Task receive = new Task(ReceiveThread, shared);
             Task dataProccess = new Task(ProccessDataThread, shared);
+            Task[] tasks = new Task[] { timeoutChecker, receive, dataProccess};
+            try
+            {
+                foreach (Task t in tasks)
+                    t.Start();
 
-            Task ended = Task.WhenAny(timeoutChecker, receive,dataProccess);
+                Task<Task> waiter = Task.WhenAny(timeoutChecker, receive, dataProccess);
+                waiter.Wait();
+
+                Task whoEndIt = waiter.Result;
+
+                foreach (Task t in tasks)
+                    t.Wait();
+            }
+            finally
+            {
+                foreach (Task t in tasks)
+                    t.Dispose();
+            }
         }
     }
 }
