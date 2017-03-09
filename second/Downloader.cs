@@ -40,34 +40,8 @@ namespace second
 
         private DownloadPacket receive(CommunicationPacket p)
         {
-            UInt16 minRequired = Convert.ToUInt16(required & UInt16.MaxValue);
-            UInt16 maxRequired = Convert.ToUInt16((required + (ulong)Sizes.WINDOW_SIZE) & UInt16.MaxValue);
-            UInt64 modCurrent = this.required - (this.required & UInt16.MaxValue);
-            DownloadPacket toReturn;
-
-            Logger.WriteLine($"MinAccept: {minRequired}, MaxAccept: {maxRequired}");
-            if (minRequired < maxRequired) // ......MIN--------MAX......
-            {
-                if (maxRequired < p.SerialNumber) // .....MIN-------MAX....P...
-                {
-                    modCurrent--;
-                    UInt64 modPrev = modCurrent - (modCurrent & UInt16.MaxValue);
-                    toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, modPrev + (UInt64)p.SerialNumber);
-                }
-                else // ....MIN---P----MAX....    OR    ...P...MIN-------MAX..... 
-                    toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, modCurrent + (UInt64)p.SerialNumber);
-            }
-            //                                                 CUR  
-            //                                                  V
-            else //packet over edge of UInt16 <----MAX.........MIN---->
-            {
-                UInt64 realSerial;
-                if (p.SerialNumber <= maxRequired)   //  <--P---MAX.........MIN----->
-                    realSerial = modCurrent + (UInt64)UInt16.MaxValue + (UInt64)p.SerialNumber + 1;
-                else //  <----MAX.........MIN---P-->     or posibbly     <-----MAX......X..MIN----->
-                    realSerial = (UInt64)modCurrent + (UInt64)p.SerialNumber;
-                toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, realSerial);
-            }
+            UInt64 realSerial = CommunicationFacade.ComputeRealNumber(p.SerialNumber,this.required,UInt16.MaxValue,(uint)Sizes.WINDOW_SIZE);
+            DownloadPacket toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, realSerial); ;
             Logger.WriteLine($"Downloader recive packet with serial={toReturn.SerialNumber}");
             return toReturn;
         }

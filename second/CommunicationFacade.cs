@@ -113,5 +113,38 @@ namespace second
             }
             throw new Exceptions.MaximumAttempException();
         }
+
+        public static UInt64 ComputeRealNumber(UInt64 PointToRecompute, UInt64 CurrentPoint,UInt64 MaxValue, UInt64 PointsToEnd )
+        {
+            UInt16 minRequired = Convert.ToUInt16(CurrentPoint & MaxValue);
+            UInt16 maxRequired = Convert.ToUInt16((CurrentPoint + PointsToEnd) & MaxValue);
+            UInt64 modCurrent = CurrentPoint - (CurrentPoint & MaxValue);
+            UInt64 toReturn;
+
+            Logger.WriteLine($"MinAccept: {minRequired}, MaxAccept: {maxRequired}");
+            if (minRequired < maxRequired) // ......MIN--------MAX......
+            {
+                if (maxRequired < PointToRecompute) // .....MIN-------MAX....P...
+                {
+                    modCurrent--;
+                    UInt64 modPrev = modCurrent - (modCurrent & UInt16.MaxValue);
+                    toReturn = modPrev + PointToRecompute;
+                }
+                else // ....MIN---P----MAX....    OR    ...P...MIN-------MAX..... 
+                    toReturn = modCurrent + PointToRecompute;
+            }
+            //                                                 CUR  
+            //                                                  V
+            else //packet over edge of UInt16 <----MAX.........MIN---->
+            {
+                UInt64 realSerial;
+                if (PointToRecompute <= maxRequired)   //  <--P---MAX.........MIN----->
+                    toReturn = modCurrent + MaxValue + PointToRecompute + 1;
+                else //  <----MAX.........MIN---P-->     or posibbly     <-----MAX......X..MIN----->
+                    toReturn = modCurrent + PointToRecompute;
+            }
+            Logger.WriteLine($"Recomputed value to {toReturn}");
+            return toReturn;
+        }
     }
 }
