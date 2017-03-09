@@ -16,8 +16,7 @@ namespace second
         private Socket socket;
 
         private UInt32 connectionNumber;
-
-        private Stopwatch begin;
+        private UInt64 windowBegin;
 
         public Uploader(Socket s, BinaryReader reader)
         {
@@ -28,9 +27,9 @@ namespace second
         public void InitConnection()
         {
             this.connectionNumber = CommunicationFacade.InitConnection(this.socket, Command.UPLOAD);
-            this.begin = new Stopwatch();
-            this.begin.Start();
         }
+
+        public UInt64 Sended { get { return this.windowBegin; } }
 
         static private void TimeoutCheckerThread(object Param)
         {

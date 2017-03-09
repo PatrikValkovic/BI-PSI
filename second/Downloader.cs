@@ -1,15 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
 using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
 using second.Packets;
 using Priority_Queue;
 using second.Exceptions;
-using System.Diagnostics;
 
 namespace second
 {
@@ -22,8 +16,6 @@ namespace second
         private UInt64 required;
         private bool waitingToFin;
 
-        private Stopwatch begin;
-
         public Downloader(Socket s, BinaryWriter writer)
         {
             this.outFile = writer;
@@ -34,13 +26,11 @@ namespace second
         public void InitConnection()
         {
             this.connectionNumber = CommunicationFacade.InitConnection(this.socket, Command.DOWNLOAD);
-            this.begin = new Stopwatch();
-            this.begin.Start();
         }
 
         private DownloadPacket receive(CommunicationPacket p)
         {
-            UInt64 realSerial = CommunicationFacade.ComputeRealNumber(p.SerialNumber,this.required,UInt16.MaxValue,(uint)Sizes.WINDOW_SIZE);
+            UInt64 realSerial = CommunicationFacade.ComputeRealNumber(p.SerialNumber, this.required, UInt16.MaxValue, (uint)Sizes.WINDOW_SIZE);
             DownloadPacket toReturn = new DownloadPacket(p.Data, p.ConnectionNumber, p.Flags, realSerial); ;
             Logger.WriteLine($"Downloader recive packet with serial={toReturn.SerialNumber}");
             return toReturn;
@@ -129,16 +119,6 @@ namespace second
             }
         }
 
-        public void ShowSpeed()
-        {
-            this.begin.Stop();
-            double kb = (double)this.required / 1024.0;
-
-            double seconds = (double)this.begin.ElapsedMilliseconds / 1000.0;
-
-            double avarage = kb / seconds;
-
-            Logger.WriteLine($"Avarage speed: {avarage:0.00}KB/s, total time: {seconds:0.00}, size: {kb:0.00}KB", ConsoleColor.Cyan);
-        }
+        public UInt64 Recived { get { return this.required; } }
     }
 }
