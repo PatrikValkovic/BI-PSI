@@ -71,17 +71,27 @@ namespace second
                 //if expires oldes packet
                 if (p != null)
                 {
-                    //TODO check if is required to send it
-                    p.Sended++;
-                    p.LastSend = new DateTime();
-                    if (p.Sended == (ushort)PacketsProps.MAX_ATTEMPS)
-                        throw new MaximumAttempException();
-                    Logger.WriteLine($"Packet {p.SerialNumber} timeouted, sends again");
-                    CommunicationFacade.Send(data.Socket, p.CreatePacketToSend());
-                    lock (data.SendedPackets)
-                        data.SendedPackets.Enqueue(p);
+                    bool sendIt = true;
+                    lock(data.CountersLocker)
+                    {
+                        //check if is required to send it
+                        if (data.Confirmed >= p.SerialNumber)
+                            sendIt = false;
+                    }
+                    if(sendIt)
+                    {
+                        //socket have highter serial number that is confirmed number
+                        p.Sended++;
+                        p.LastSend = new DateTime();
+                        if (p.Sended == (ushort)PacketsProps.MAX_ATTEMPS)
+                            throw new MaximumAttempException();
+                        Logger.WriteLine($"Packet {p.SerialNumber} timeouted, sends again");
+                        CommunicationFacade.Send(data.Socket, p.CreatePacketToSend());
+                        lock (data.SendedPackets)
+                            data.SendedPackets.Enqueue(p);
+                    }
                 }
-                else
+                else //timeout not expired for the oldest packet
                     Thread.Sleep(0);
             }
         }
@@ -89,12 +99,13 @@ namespace second
         static private void ProccessDataThread(object Param)
         {
             Logger.WriteLine("ProccessData thread started");
+            SharedObject data = (SharedObject)Param;
         }
 
-        static private void ReceiveThread(object param)
+        static private void ReceiveThread(object Param)
         {
             Logger.WriteLine("Receive thread started");
-            SharedObject data = (SharedObject)param;
+            SharedObject data = (SharedObject)Param;
             while (!data.Ended)
             {
                 data.Socket.ReceiveTimeout = (int)PacketsProps.WAIT_TIME;
