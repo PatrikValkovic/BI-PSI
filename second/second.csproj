@@ -51,6 +51,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Downloader.cs" />
     <Compile Include="Exceptions\CommunicationException.cs" />
+    <Compile Include="Exceptions\InvalidPacketException.cs" />
     <Compile Include="Exceptions\MaximumAttempException.cs" />
     <Compile Include="InitActions.cs" />
     <Compile Include="Logger.cs" />

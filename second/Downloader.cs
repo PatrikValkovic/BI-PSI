@@ -20,6 +20,7 @@ namespace second
 
         private UInt32 connectionNumber;
         private UInt64 required;
+        private bool waitingToFin;
 
         private Stopwatch begin;
 
@@ -27,6 +28,7 @@ namespace second
         {
             this.outFile = writer;
             this.socket = s;
+            this.waitingToFin = false;
         }
 
         public void InitConnection()
@@ -72,6 +74,29 @@ namespace second
 
         private DownloadPacket validatePacket(DownloadPacket p)
         {
+            if (p.ConnectionNumber != this.connectionNumber)
+                throw new InvalidPacketException($"Connection number not match, required: {this.connectionNumber:X} accepted: {p.ConnectionNumber:X}");
+
+            if (p.Flags > 0 && p.Flags != (byte)Flag.FIN && p.Flags != (byte)Flag.SYN && p.Flags != (byte)Flag.RST)
+                throw new InvalidPacketException($"Invalid packet, obtained {Convert.ToString(p.Flags, 2)}");
+
+            if (!waitingToFin)
+            {
+                UInt64 i = 0;
+                UInt64 max = (UInt64)Sizes.WINDOW_PACKETS * 4;
+                for (i = 0; i < max; i++)
+                    if (p.SerialNumber + i * (UInt64)Sizes.MAX_DATA == this.required || p.SerialNumber + i * (UInt64)Sizes.MAX_DATA == this.required + (UInt64)Sizes.WINDOW_SIZE)
+                        break;
+                if (i == max)
+                    throw new InvalidPacketException($"Invalid packet serial, min required: {this.required}, obtained: {p.SerialNumber}");
+            }
+
+            if (p.Flags == (byte)Flag.FIN && p.Data.Length > 0)
+                throw new InvalidPacketException("Packet with FIN contains data");
+
+
+            if (p.Flags == (byte)Flag.RST)
+                throw new CommunicationException();
             return p;
         }
 
@@ -94,8 +119,6 @@ namespace second
                         CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required & UInt16.MaxValue), (byte)Flag.FIN, empty));
                         return;
                     }
-                    if (pack.Flags == (byte)Flag.RST)
-                        throw new CommunicationException();
 
 
                     queue.Enqueue(pack, pack.SerialNumber);
@@ -110,7 +133,10 @@ namespace second
                         this.outFile.Write(toProccess.Data);
                         this.required += (uint)toProccess.Data.Length;
                         if (toProccess.Data.Length != 255)
+                        {
                             Logger.WriteLine("Last packet arrive, waiting to FIN packet", ConsoleColor.Cyan);
+                            this.waitingToFin = true;
+                        }
                     }
                     Logger.WriteLine($"Waiting for packet {this.required}");
                     CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required & UInt16.MaxValue), 0, empty));
@@ -119,6 +145,12 @@ namespace second
             catch (CommunicationException)
             {
                 Logger.WriteLine("Occurs error during communication", ConsoleColor.Yellow);
+                throw new TerminateException();
+            }
+            catch (InvalidPacketException e)
+            {
+                Logger.WriteLine($"Obtained invalid packet: {e.Message}", ConsoleColor.Yellow);
+                CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, Convert.ToUInt16(this.required & UInt16.MaxValue), (byte)Flag.RST, new byte[] { }));
                 throw new TerminateException();
             }
         }
@@ -132,7 +164,7 @@ namespace second
 
             double avarage = kb / seconds;
 
-            Logger.WriteLine($"Avarage speed: {avarage:0.00}KB/s, total time: {seconds:0.00}, size: {kb:0.00}KB",ConsoleColor.Cyan);
+            Logger.WriteLine($"Avarage speed: {avarage:0.00}KB/s, total time: {seconds:0.00}, size: {kb:0.00}KB", ConsoleColor.Cyan);
         }
     }
 }
