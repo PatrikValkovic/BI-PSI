@@ -243,7 +243,7 @@ namespace second
                     p = Validate(p, data.ConnectionNumber, currentConfirmation);
                     if (p.Flags == (uint)Flag.FIN)
                     {
-                        Logger.WriteLine("FIN packet arrive",ConsoleColor.Cyan);
+                        Logger.WriteLine("FIN packet arrive", ConsoleColor.Cyan);
                         data.Ended = true;
                     }
                 }
@@ -302,10 +302,21 @@ namespace second
                     throw whoEndIt.Exception.InnerException;
 
             }
-            catch(MaximumAttempException e)
+            catch (MaximumAttempException)
             {
-                Logger.WriteLine("Maximum attemp of socket, sending RST packet");
-                CommunicationFacade.Send(this.socket,new CommunicationPacket(this.connectionNumber,0,0,(byte)Flag.RST,new byte[] { }));
+                Logger.WriteLine("Maximum attemp of send, sending RST packet", ConsoleColor.Yellow);
+                CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, 0, (byte)Flag.RST, new byte[] { }));
+                throw;
+            }
+            catch (InvalidPacketException e)
+            {
+                Logger.WriteLine($"Invalid packet ({e.Message}), sending RST packet", ConsoleColor.Yellow);
+                CommunicationFacade.Send(this.socket, new CommunicationPacket(this.connectionNumber, 0, 0, (byte)Flag.RST, new byte[] { }));
+                throw;
+            }
+            catch (CommunicationException)
+            {
+                Logger.WriteLine($"Error occurs during communication", ConsoleColor.Yellow);
                 throw;
             }
             finally
