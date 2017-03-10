@@ -35,17 +35,22 @@ namespace second
 
         private class SharedObject
         {
-            public SharedObject(Socket s)
+            public SharedObject(Socket s, UInt32 connectionNumber, BinaryReader reader)
             {
                 this.Socket = s;
+                this.ConnectionNumber = connectionNumber;
+                this.Reader = reader;
             }
 
             public object CountersLocker = new object();
             public UInt64 Confirmed = 0;
             public ushort ThisConfirmedTimes = 0;
+
+            public uint ConnectionNumber;
             public Socket Socket;
             public Queue<CommunicationPacket> ArriveQueue = new Queue<CommunicationPacket>();
             public LinkedList<UploadSendPacket> SendedPackets = new LinkedList<UploadSendPacket>();
+            public BinaryReader Reader;
 
             public volatile bool Ended = false;
         }
@@ -72,14 +77,16 @@ namespace second
                 //if expires oldes packet
                 if (p != null)
                 {
-                    bool sendIt = true;
+                    //check if is required to send it
+                    UInt64 currentConfirmed;
                     lock(data.CountersLocker)
                     {
-                        //check if is required to send it
-                        if (data.Confirmed >= p.SerialNumber)
-                            sendIt = false;
+                        currentConfirmed = data.Confirmed;
                     }
-                    if(sendIt)
+                    bool sendIt = p.SerialNumber > currentConfirmed;
+
+                    //send it if needed
+                    if (sendIt)
                     {
                         //socket have highter serial number that is confirmed number
                         p.Sended++;
@@ -101,6 +108,21 @@ namespace second
         {
             Logger.WriteLine("ProccessData thread started");
             SharedObject data = (SharedObject)Param;
+            UInt64 sended = 0;
+
+            //fill first window
+            for (int i=0;i<8;i++)
+            {
+                UploadSendPacket p = new UploadSendPacket(data.ConnectionNumber,0,data.Reader.ReadBytes(255));
+                lock(data.SendedPackets)
+                {
+                    data.SendedPackets.AddFirst(p);
+                }
+                sended += (uint)p.Data.Length;
+            }
+
+            //loop in ArriveQueue
+                //send new or send first packet
         }
 
         static private void ReceiveThread(object Param)
@@ -126,7 +148,7 @@ namespace second
 
         public async void SendFile()
         {
-            SharedObject shared = new SharedObject(this.socket);
+            SharedObject shared = new SharedObject(this.socket,this.connectionNumber,this.inFile);
 
             Task timeoutChecker = new Task(TimeoutCheckerThread, shared);
             Task receive = new Task(ReceiveThread, shared);
