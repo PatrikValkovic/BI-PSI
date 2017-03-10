@@ -81,6 +81,8 @@ namespace second
             {
                 Logger.WriteLine("End", ConsoleColor.Cyan);
                 Console.ReadKey();
+                Console.BackgroundColor = ConsoleColor.Black;
+                Console.ForegroundColor = ConsoleColor.White;
             }
         }
     }

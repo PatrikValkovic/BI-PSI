@@ -118,6 +118,8 @@ namespace second
             if (p.Flags > 0 && p.Flags != (byte)Flag.FIN && p.Flags != (byte)Flag.SYN && p.Flags != (byte)Flag.RST)
                 throw new InvalidPacketException($"Invalid packet, obtained {Convert.ToString(p.Flags, 2)}");
 
+            if (p.Flags == (byte)Flag.RST)
+                throw new CommunicationException();
 
             UInt64 i = 0;
             UInt64 max = (UInt64)Sizes.WINDOW_PACKETS * 4;
@@ -130,9 +132,6 @@ namespace second
             if (p.Flags == (byte)Flag.FIN && p.Data.Length > 0)
                 throw new InvalidPacketException("Packet with FIN contains data");
 
-
-            if (p.Flags == (byte)Flag.RST)
-                throw new CommunicationException();
             return p;
         }
 
