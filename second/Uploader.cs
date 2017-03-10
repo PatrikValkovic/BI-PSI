@@ -69,7 +69,7 @@ namespace second
                 {
                     if (data.SendedPackets.Count > 0)
                     {
-                        TimeSpan diff = new DateTime() - data.SendedPackets.First.Value.LastSend;
+                        TimeSpan diff = DateTime.Now - data.SendedPackets.First.Value.LastSend;
                         if(Math.Abs(diff.TotalMilliseconds) >= (ushort)PacketsProps.WAIT_TIME)
                         {
                             p = data.SendedPackets.First.Value;
@@ -94,7 +94,7 @@ namespace second
                     {
                         //socket have highter serial number that is confirmed number
                         p.Sended++;
-                        p.LastSend = new DateTime();
+                        p.LastSend = DateTime.Now;
                         if (p.Sended == (ushort)PacketsProps.MAX_ATTEMPS)
                             throw new MaximumAttempException();
                         Logger.WriteLine($"Packet {p.SerialNumber} timeouted, sends again");
@@ -127,8 +127,9 @@ namespace second
             }
 
             Logger.WriteLine("ProcessData fill first window");
-            while (true) ;
 
+            while(true)
+                Thread.Sleep(0);
             //loop in ArriveQueue
                 //send new or send first packet
         }
