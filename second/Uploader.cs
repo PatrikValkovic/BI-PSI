@@ -48,7 +48,7 @@ namespace second
 
             public uint ConnectionNumber;
             public Socket Socket;
-            public Queue<CommunicationPacket> ArriveQueue = new Queue<CommunicationPacket>();
+            public Queue<UploadRecvPacket> ArriveQueue = new Queue<UploadRecvPacket>();
             public LinkedList<UploadSendPacket> SendedPackets = new LinkedList<UploadSendPacket>();
             public BinaryReader Reader;
 
@@ -129,9 +129,9 @@ namespace second
             Logger.WriteLine("ProcessData fill first window");
 
             while(!data.Ended)
-                Thread.Sleep(0);
-            //loop in ArriveQueue
-                //send new or send first packet
+            {
+
+            }
         }
 
         static private void ReceiveThread(object Param)
@@ -144,11 +144,15 @@ namespace second
                 try
                 {
                     CommunicationPacket p = CommunicationFacade.Receive(data.Socket);
-                    //TODO validation?
+                    UInt64 currentPoint;
+                    lock (data.CountersLocker)
+                        currentPoint = data.Confirmed;
+
+                    UInt64 confirmationNumber = CommunicationFacade.ComputeRealNumber(p.ConfirmationNumber,currentPoint,UInt16.MaxValue,(uint)Sizes.WINDOW_SIZE);
+                    UploadRecvPacket recv = new UploadRecvPacket(p.ConnectionNumber,p.Flags,p.Data,confirmationNumber);
+
                     lock (data.ArriveQueue)
-                    {
-                        data.ArriveQueue.Enqueue(p);
-                    }
+                        data.ArriveQueue.Enqueue(recv);
                 }
                 catch (SocketException e) when (e.SocketErrorCode == SocketError.TimedOut)
                 { }

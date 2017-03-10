@@ -58,6 +58,7 @@
     <Compile Include="Packets\BasePacket.cs" />
     <Compile Include="Packets\DownloadPacket.cs" />
     <Compile Include="Packets\CommunicationPacket.cs" />
+    <Compile Include="Packets\UploadRecvPacket.cs" />
     <Compile Include="Packets\UploadSendPacket.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
