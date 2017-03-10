@@ -128,7 +128,7 @@ namespace second
 
             Logger.WriteLine("ProcessData fill first window");
 
-            while(true)
+            while(!data.Ended)
                 Thread.Sleep(0);
             //loop in ArriveQueue
                 //send new or send first packet
@@ -182,7 +182,8 @@ namespace second
                 shared.Ended = true;
                 foreach (Task t in tasks)
                 {
-                    t.Wait();
+                    if(t.Status == TaskStatus.Running)
+                        t.Wait();
                     t.Dispose();
                 }
             }
