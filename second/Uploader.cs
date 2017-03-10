@@ -57,7 +57,7 @@ namespace second
 
         static private void TimeoutCheckerThread(object Param)
         {
-            Logger.WriteLine("TimeoutChecker thread started");
+            Logger.WriteLine($"TimeoutChecker thread started with id {Task.CurrentId}");
             SharedObject data = (SharedObject)Param;
             UploadSendPacket p;
             while (!data.Ended)
@@ -67,10 +67,14 @@ namespace second
                 //check the oldest packet
                 lock (data.SendedPackets)
                 {
-                    if (data.SendedPackets.Count > 0 && (new DateTime() - data.SendedPackets.First.Value.LastSend).TotalMilliseconds >= (ushort)PacketsProps.WAIT_TIME)
+                    if (data.SendedPackets.Count > 0)
                     {
-                        p = data.SendedPackets.First.Value;
-                        data.SendedPackets.RemoveFirst();
+                        TimeSpan diff = new DateTime() - data.SendedPackets.First.Value.LastSend;
+                        if(Math.Abs(diff.TotalMilliseconds) >= (ushort)PacketsProps.WAIT_TIME)
+                        {
+                            p = data.SendedPackets.First.Value;
+                            data.SendedPackets.RemoveFirst();
+                        }
                     }
                 }
 
@@ -83,7 +87,7 @@ namespace second
                     {
                         currentConfirmed = data.Confirmed;
                     }
-                    bool sendIt = p.SerialNumber > currentConfirmed;
+                    bool sendIt = p.SerialNumber >= currentConfirmed;
 
                     //send it if needed
                     if (sendIt)
@@ -106,14 +110,15 @@ namespace second
 
         static private void ProccessDataThread(object Param)
         {
-            Logger.WriteLine("ProccessData thread started");
+            Logger.WriteLine($"ProccessData thread started with id {Task.CurrentId}");
             SharedObject data = (SharedObject)Param;
             UInt64 sended = 0;
 
             //fill first window
             for (int i=0;i<8;i++)
             {
-                UploadSendPacket p = new UploadSendPacket(data.ConnectionNumber,0,data.Reader.ReadBytes(255));
+                UploadSendPacket p = new UploadSendPacket(data.ConnectionNumber,0,data.Reader.ReadBytes(255),sended);
+                p.LastSend = new DateTime(1990,1,1);
                 lock(data.SendedPackets)
                 {
                     data.SendedPackets.AddFirst(p);
@@ -121,13 +126,16 @@ namespace second
                 sended += (uint)p.Data.Length;
             }
 
+            Logger.WriteLine("ProcessData fill first window");
+            while (true) ;
+
             //loop in ArriveQueue
                 //send new or send first packet
         }
 
         static private void ReceiveThread(object Param)
         {
-            Logger.WriteLine("Receive thread started");
+            Logger.WriteLine($"Receive thread started with id {Task.CurrentId}");
             SharedObject data = (SharedObject)Param;
             while (!data.Ended)
             {
@@ -164,6 +172,7 @@ namespace second
                 waiter.Wait();
 
                 Task whoEndIt = waiter.Result;
+                Logger.WriteLine($"Thread {whoEndIt.Id} ended his work");
                 //TODO do something?
 
             }
