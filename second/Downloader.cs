@@ -52,7 +52,7 @@ namespace second
                     if (p.SerialNumber + i * (UInt64)Sizes.MAX_DATA == this.required || p.SerialNumber + i * (UInt64)Sizes.MAX_DATA == this.required + (UInt64)Sizes.WINDOW_SIZE)
                         break;
                 if (i == max)
-                    throw new InvalidPacketException($"Invalid packet serial, min required: {this.required}, obtained: {p.SerialNumber}");
+                    throw new InvalidPacketException($"Invalid packet serial, min required: {this.required} max required: {this.required + (uint)Sizes.WINDOW_SIZE}, obtained: {p.SerialNumber}");
             }
 
             if (p.Flags == (byte)Flag.FIN && p.Data.Length > 0)

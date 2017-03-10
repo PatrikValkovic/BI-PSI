@@ -53,6 +53,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="DownloaderBeforeExpected.cs" />
+    <Compile Include="UploaderBaseTests.cs" />
     <Compile Include="DownloaderSecondEdge.cs" />
     <Compile Include="DownloaderEdge.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
