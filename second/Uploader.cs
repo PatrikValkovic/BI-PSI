@@ -18,7 +18,6 @@ namespace second
         private Socket socket;
 
         private UInt32 connectionNumber;
-        private UInt64 fileSize;
 
         private TimeMeasure measure = new TimeMeasure();
 
@@ -32,8 +31,6 @@ namespace second
         {
             this.connectionNumber = CommunicationFacade.InitConnection(this.socket, Command.UPLOAD);
         }
-
-        public UInt64 Sended { get { return this.fileSize; } }
 
         private class SharedObject
         {
@@ -145,6 +142,7 @@ namespace second
             SharedObject data = (SharedObject)Param;
             UInt64 sended = 0;
             bool sendedLastSocket = false;
+            bool lastPacketConfirmed = false;
 
             //fill first window
             for (int i = 0; i < 8; i++)
@@ -161,7 +159,7 @@ namespace second
             Logger.WriteLine("ProcessData fill first window");
 
             UploadRecvPacket p;
-            while (!data.Ended)
+            while (!data.Ended && !lastPacketConfirmed)
             {
                 //get item from queue
                 p = null;
@@ -181,9 +179,10 @@ namespace second
                         break;
 
                     try { p = Validate(p, data.ConnectionNumber, currentConfirmation); }
-                    catch (InvalidPacketNumberException) when(sendedLastSocket && p.ConfirmationNumber==sended)
+                    catch (InvalidPacketNumberException) when (sendedLastSocket && p.ConfirmationNumber == sended)
                     {
-                        Logger.WriteLine($"Last packet with confirmation {p.ConfirmationNumber} arrive",ConsoleColor.Cyan);
+                        Logger.WriteLine($"Last packet with confirmation {p.ConfirmationNumber} arrive", ConsoleColor.Cyan);
+                        lastPacketConfirmed = true;
                     }
 
                     //if has packet lower configmration that is current confirmation, it is irelevant
@@ -202,9 +201,9 @@ namespace second
                         sended += (uint)send.Data.Length;
                         send.LastSend = new DateTime(1900, 1, 1);
                         Logger.WriteLine($"Adding packet with serial {send.SerialNumber}");
-                        if(send.Data.Length != (uint)Sizes.MAX_DATA)
+                        if (send.Data.Length != (uint)Sizes.MAX_DATA)
                         {
-                            Logger.WriteLine($"This socket will be final - serial {send.SerialNumber}",ConsoleColor.Cyan);
+                            Logger.WriteLine($"This socket will be final - serial {send.SerialNumber}", ConsoleColor.Cyan);
                             sendedLastSocket = true;
                         }
                         lock (data.SendedPackets)
@@ -220,6 +219,37 @@ namespace second
             data.Measure.Stop();
 
             Logger.WriteLine("Sending FIN packet", ConsoleColor.Cyan);
+            UploadSendPacket final = new UploadSendPacket(data.ConnectionNumber, (byte)Flag.FIN, new byte[] { }, sended);
+            lock (data.SendedPackets)
+                data.SendedPackets.AddFirst(final);
+
+            //wait for FIN packet
+            while (!data.Ended)
+            {
+                //get item from queue
+                p = null;
+                lock (data.ArriveQueue)
+                    if (data.ArriveQueue.Count > 0)
+                        p = data.ArriveQueue.Dequeue();
+
+                //if items exists
+                if (p != null)
+                {
+                    // get current confirmation number
+                    UInt64 currentConfirmation;
+                    lock (data.CountersLocker)
+                        currentConfirmation = data.Confirmed;
+
+                    p = Validate(p, data.ConnectionNumber, currentConfirmation);
+                    if (p.Flags == (uint)Flag.FIN)
+                    {
+                        Logger.WriteLine("FIN packet arrive",ConsoleColor.Cyan);
+                        data.Ended = true;
+                    }
+                }
+                else
+                    Thread.Sleep(0);
+            }
         }
 
         static private void ReceiveThread(object Param)
@@ -247,9 +277,9 @@ namespace second
             }
         }
 
-        public async void SendFile()
+        public void SendFile()
         {
-            SharedObject shared = new SharedObject(this.socket, this.connectionNumber, this.inFile,this.measure);
+            SharedObject shared = new SharedObject(this.socket, this.connectionNumber, this.inFile, this.measure);
 
             Task timeoutChecker = new Task(TimeoutCheckerThread, shared);
             Task receive = new Task(ReceiveThread, shared);
@@ -268,8 +298,15 @@ namespace second
 
                 Task whoEndIt = waiter.Result;
                 Logger.WriteLine($"Thread {whoEndIt.Id} ended his work");
-                //TODO do something?
+                if (whoEndIt.Exception != null)
+                    throw whoEndIt.Exception.InnerException;
 
+            }
+            catch(MaximumAttempException e)
+            {
+                Logger.WriteLine("Maximum attemp of socket, sending RST packet");
+                CommunicationFacade.Send(this.socket,new CommunicationPacket(this.connectionNumber,0,0,(byte)Flag.RST,new byte[] { }));
+                throw;
             }
             finally
             {
@@ -280,6 +317,7 @@ namespace second
                         t.Wait();
                     t.Dispose();
                 }
+                this.measure.ShowSpeed(shared.Confirmed);
             }
         }
     }
