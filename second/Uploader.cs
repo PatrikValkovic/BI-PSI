@@ -20,6 +20,8 @@ namespace second
         private UInt32 connectionNumber;
         private UInt64 fileSize;
 
+        private TimeMeasure measure = new TimeMeasure();
+
         public Uploader(Socket s, BinaryReader reader)
         {
             this.inFile = reader;
@@ -35,11 +37,12 @@ namespace second
 
         private class SharedObject
         {
-            public SharedObject(Socket s, UInt32 connectionNumber, BinaryReader reader)
+            public SharedObject(Socket s, UInt32 connectionNumber, BinaryReader reader, TimeMeasure measure)
             {
                 this.Socket = s;
                 this.ConnectionNumber = connectionNumber;
                 this.Reader = reader;
+                this.Measure = measure;
             }
 
             public object CountersLocker = new object();
@@ -53,6 +56,8 @@ namespace second
             public BinaryReader Reader;
 
             public volatile bool Ended = false;
+
+            public TimeMeasure Measure;
         }
 
         static private void TimeoutCheckerThread(object Param)
@@ -139,6 +144,7 @@ namespace second
             Logger.WriteLine($"ProccessData thread started with id {Task.CurrentId}");
             SharedObject data = (SharedObject)Param;
             UInt64 sended = 0;
+            bool sendedLastSocket = false;
 
             //fill first window
             for (int i = 0; i < 8; i++)
@@ -171,9 +177,14 @@ namespace second
                     lock (data.CountersLocker)
                         currentConfirmation = data.Confirmed;
 
+                    if (currentConfirmation == sended)
+                        break;
+
                     try { p = Validate(p, data.ConnectionNumber, currentConfirmation); }
-                    catch (InvalidPacketNumberException e)
-                    { Logger.WriteLine(e.Message, ConsoleColor.Yellow); }
+                    catch (InvalidPacketNumberException) when(sendedLastSocket && p.ConfirmationNumber==sended)
+                    {
+                        Logger.WriteLine($"Last packet with confirmation {p.ConfirmationNumber} arrive",ConsoleColor.Cyan);
+                    }
 
                     //if has packet lower configmration that is current confirmation, it is irelevant
                     if (p.ConfirmationNumber <= currentConfirmation)
@@ -185,21 +196,30 @@ namespace second
                     ushort sendPackets = (ushort)((bytesSucesfullySended / (uint)Sizes.MAX_DATA));
                     lock (data.CountersLocker)
                         data.Confirmed = p.ConfirmationNumber;
-                    for (uint i = 0; i < sendPackets; i++)
+                    for (uint i = 0; i < sendPackets && !sendedLastSocket; i++)
                     {
                         UploadSendPacket send = new UploadSendPacket(data.ConnectionNumber, 0, data.Reader.ReadBytes(255), sended);
                         sended += (uint)send.Data.Length;
                         send.LastSend = new DateTime(1900, 1, 1);
                         Logger.WriteLine($"Adding packet with serial {send.SerialNumber}");
+                        if(send.Data.Length != (uint)Sizes.MAX_DATA)
+                        {
+                            Logger.WriteLine($"This socket will be final - serial {send.SerialNumber}",ConsoleColor.Cyan);
+                            sendedLastSocket = true;
+                        }
                         lock (data.SendedPackets)
                             data.SendedPackets.AddFirst(send);
 
                     }
                 }
-                //else wait for packet
+                //wait for arrive packet
                 else
                     Thread.Sleep(0);
             }
+
+            data.Measure.Stop();
+
+            Logger.WriteLine("Sending FIN packet", ConsoleColor.Cyan);
         }
 
         static private void ReceiveThread(object Param)
@@ -229,7 +249,7 @@ namespace second
 
         public async void SendFile()
         {
-            SharedObject shared = new SharedObject(this.socket, this.connectionNumber, this.inFile);
+            SharedObject shared = new SharedObject(this.socket, this.connectionNumber, this.inFile,this.measure);
 
             Task timeoutChecker = new Task(TimeoutCheckerThread, shared);
             Task receive = new Task(ReceiveThread, shared);
@@ -238,6 +258,8 @@ namespace second
 
             try
             {
+                measure.Start();
+
                 foreach (Task t in tasks)
                     t.Start();
 

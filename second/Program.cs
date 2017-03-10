@@ -54,9 +54,7 @@ namespace second
                             {
                                 Uploader d = new Uploader(s, str);
                                 d.InitConnection();
-                                TimeMeasure timer = new TimeMeasure(true);
                                 d.SendFile();
-                                timer.ShowSpeed(d.Sended);
                             }
                         }
                     }
