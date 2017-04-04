@@ -1,0 +1,1148 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" dir="ltr" lang="cs"><head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>
+    Domácí úloha č. 2 - UDP Klient    [BI-PSI Počítačové sítě]
+  </title>
+
+  <meta name="generator" content="DokuWiki snapshot? unknown">
+<meta name="robots" content="index,follow">
+<meta name="date" content="2017-03-12T21:55:59+0100">
+<meta name="keywords" content="labs,task2">
+<link rel="search" type="application/opensearchdescription+xml" href="https://edux.fit.cvut.cz/courses/BI-PSI/lib/exe/opensearch.php" title="BI-PSI Počítačové sítě">
+<link rel="start" href="https://edux.fit.cvut.cz/courses/BI-PSI/">
+<link rel="contents" href="https://edux.fit.cvut.cz/courses/BI-PSI/labs/task2?do=index" title="Index">
+<link rel="alternate" type="application/rss+xml" title="Recent Changes" href="https://edux.fit.cvut.cz/courses/BI-PSI/feed.php">
+<link rel="alternate" type="application/rss+xml" title="Current Namespace" href="https://edux.fit.cvut.cz/courses/BI-PSI/feed.php?mode=list&amp;ns=labs">
+<link rel="alternate" type="text/html" title="Plain HTML" href="https://edux.fit.cvut.cz/courses/BI-PSI/_export/xhtml/labs/task2">
+<link rel="canonical" href="https://edux.fit.cvut.cz/courses/BI-PSI/labs/task2">
+<link rel="stylesheet" media="all" type="text/css" href="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/css_002.css">
+<link rel="stylesheet" media="screen" type="text/css" href="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/css.css">
+<link rel="stylesheet" media="print" type="text/css" href="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/css_003.css">
+<script type="text/javascript" charset="utf-8"><!--//--><![CDATA[//><!--
+var NS='labs';var SIG=' --- //[[valkopat@fit.cvut.cz|valkopat]] 2017/04/04 09:11//';var JSINFO = {"id":"labs:task2","namespace":"labs"};
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/js.js"></script>
+<script type="text/x-mathjax-config;executed=true" charset="utf-8"><!--//--><![CDATA[//><!--
+//MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+//MathJax.Hub.Config({  TeX: { equationNumbers: {autoNumber: "all"} } });
+MathJax.Hub.Config({
+	tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+	TeX: { 
+		equationNumbers: {autoNumber: "AMS"},
+		extensions: ["AMSmath.js", "AMSsymbols.js"]
+	} 
+});
+
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/MathJax.js"></script><style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 5px 0px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 5px; -webkit-border-radius: 5px; -moz-border-radius: 5px; -khtml-border-radius: 5px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 1px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: .7em}
+.MathJax_MenuRadioCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuLabel {padding: 1px 2em 3px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #DDDDDD; margin: 4px 3px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: #606872; color: white}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1px; bottom: 2px; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style>
+<script type="text/javascript" charset="utf-8" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/usrmenu.js"></script>
+<script type="text/javascript" charset="utf-8" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/indexmenu.js"></script>
+<script type="text/javascript" charset="utf-8"><!--//--><![CDATA[//><!--
+var indexmenu_ID='labs/task2'
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8"><!--//--><![CDATA[//><!--
+jQuery.noConflict();
+
+//--><!]]></script>
+<script type="text/javascript" charset="utf-8" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/jsapi.js"></script>
+<script type="text/javascript" charset="utf-8" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/results.js"></script><script src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/a.js" type="text/javascript"></script><link href="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/uics.css" type="text/css" rel="stylesheet"><script src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/formatcsdefaultcsuicscorechartcs.js" type="text/javascript"></script>
+<script type="text/javascript" charset="utf-8" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/anketa.js"></script>
+<script type="text/javascript" charset="utf-8" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/voting.js"></script>
+<script type="text/javascript" charset="utf-8" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/editing_template.js"></script>
+<script type="text/javascript" charset="utf-8" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/harmonogram.js"></script>
+
+  <link rel="shortcut icon" href="https://edux.fit.cvut.cz/courses/BI-PSI/lib/tpl/edux/images/favicon-cvut.ico">
+  <link rel="stylesheet" href="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/font-awesome.css">
+
+    <script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script><script src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/ga.js" type="text/javascript"></script>
+<script type="text/javascript">
+try {
+	var pageTracker = _gat._getTracker("UA-10844012-1");
+	pageTracker._trackPageview();
+} catch(err) {}
+</script><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style></head>
+
+<body>
+<div class="dokuwiki">
+  
+  <div class="stylehead">
+
+    <div class="header">
+      <div class="logo">
+        <a href="https://edux.fit.cvut.cz/courses/BI-PSI/" name="dokuwiki__top" id="dokuwiki__top" accesskey="h" title="[ALT+H]">BI-PSI Počítačové sítě</a>      </div>
+      <div class="tagline">
+               </div>
+      <div class="password_expiration">
+        	  <div class="normal">
+	    <span>Platnost vašeho <a class="urlextern" href="http://intranet.cvut.cz/informace-pro-studenty/is/uzivatele-a-pristup/heslo-cvut">HESLA ČVUT</a> vyprší</span> <strong>21.02.2018</strong>
+	  </div>
+	      </div>
+      <div class="pagename">
+        [[<a href="https://edux.fit.cvut.cz/courses/BI-PSI/labs/task2?do=backlink">labs:task2</a>]]
+      </div>
+
+      <div class="clearer"></div>
+    </div>
+
+    
+    <div class="bar" id="bar__top">
+      <div class="bar-left" id="bar__topleft">
+                <form class="button btn_revs" method="get" action="/courses/BI-PSI/labs/task2"><div class="no"><input name="do" value="revisions" type="hidden"><input value="Starší verze" class="button" accesskey="o" title="Starší verze [O]" type="submit"></div></form>      </div>
+
+      <div class="bar-right" id="bar__topright">
+        <form class="button btn_recent" method="get" action="/courses/BI-PSI/labs/task2"><div class="no"><input name="do" value="recent" type="hidden"><input value="Poslední úpravy" class="button" accesskey="r" title="Poslední úpravy [R]" type="submit"></div></form>        <form action="/courses/BI-PSI/" accept-charset="utf-8" class="search" id="dw__search"><div class="no"><input name="do" value="search" type="hidden"><input id="qsearch__in" accesskey="f" name="id" class="edit" title="[F]" type="text"><input value="Hledat" class="button" title="Hledat" type="submit"><div id="qsearch__out" class="ajax_qsearch JSpopup" style="display: none;"></div></div></form>&nbsp;
+	
+	<script src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/integration_button.js" type="text/javascript"></script>		<style type="text/css">
+            @font-face {                font-family: 'icomoon';         
+       src: 
+url(data:application/x-font-ttf;charset=utf-8;base64,AAEAAAALAIAAAwAwT1MvMg8SDTQAAAC8AAAAYGNtYXAQS+BrAAABHAAAAExnYXNwAAAAEAAAAWgAAAAIZ2x5ZhYQkjoAAAFwAAACNGhlYWQFOCztAAADpAAAADZoaGVhB8IDxgAAA9wAAAAkaG10eAYAAAAAAAQAAAAAFGxvY2EAKAEuAAAEFAAAAAxtYXhwAA8AvwAABCAAAAAgbmFtZVcZpu4AAARAAAABRXBvc3QAAwAAAAAFiAAAACAAAwQAAZAABQAAApkCzAAAAI8CmQLMAAAB6wAzAQkAAAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAAAAAAAABAAADwCgPA/8AAQAPAAEAAAAABAAAAAAAAAAAAAAAgAAAAAAACAAAAAwAAABQAAwABAAAAFAAEADgAAAAKAAgAAgACAAEAIPAK//3//wAAAAAAIPAK//3//wAB/+MP+gADAAEAAAAAAAAAAAAAAAEAAf//AA8AAQAAAAAAAAAAAAIAADc5AQAAAAABAAAAAAAAAAAAAgAANzkBAAAAAAEAAAAAAAAAAAACAAA3OQEAAAAACQAAAEkEAANuABQAKQA+AFMAaAB9AJIApwC8AAAlFRQHBisBIicmPQE0NzY7ATIXFhURFRQHBisBIicmPQE0NzY7ATIXFhUBFRQHBisBIicmPQE0NzY7ATIXFhUBFRQHBisBIicmPQE0NzY7ATIXFhUBFRQHBisBIicmPQE0NzY7ATIXFhUBFRQHBisBIicmPQE0NzY7ATIXFhUBFRQHBisBIicmPQE0NzY7ATIXFhUBFRQHBisBIicmPQE0NzY7ATIXFhURFRQHBisBIicmPQE0NzY7ATIXFhUBJRAQF7cXEBAQEBe3FxAQEBAXtxcQEBAQF7cXEBABbRAQF7YXEBAQEBe2FxAQ/pMQEBe3FxAQEBAXtxcQEAFtEBAXthcQEBAQF7YXEBABbhAQF7cXEBAQEBe3FxAQ/pIQEBe2FxAQEBAXthcQEAFuEBAXtxcQEBAQF7cXEBAQEBe3FxAQEBAXtxcQEO5uFxAQEBAXbhcQEBAQFwEkbRcQEBAQF20XEBAQEBf+3G4XEBAQEBduFxAQEBAXAkluFxAQEBAXbhcQEBAQF/7bbRcQEBAQF20XEBAQEBf+3G4XEBAQEBduFxAQEBAXAkluFxAQEBAXbhcQEBAQF/7bbRcQEBAQF20XEBAQEBcBJW4XEBAQEBduFxAQEBAXAAAAAQAAAAEAAP69X6pfDzz1AAsEAAAAAADRDPRBAAAAANEM9EEAAAAABAADbgAAAAgAAgAAAAAAAAABAAADwP/AAAAEAAAAAAAEAAABAAAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAAAIAAAAEAAAAAAAAAAAKABQAHgEaAAEAAAAFAL0ACQAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAOAK4AAQAAAAAAAQAOAAAAAQAAAAAAAgAOAEcAAQAAAAAAAwAOACQAAQAAAAAABAAOAFUAAQAAAAAABQAWAA4AAQAAAAAABgAHADIAAQAAAAAACgA0AGMAAwABBAkAAQAOAAAAAwABBAkAAgAOAEcAAwABBAkAAwAOACQAAwABBAkABAAOAFUAAwABBAkABQAWAA4AAwABBAkABgAOADkAAwABBAkACgA0AGMAaQBjAG8AbQBvAG8AbgBWAGUAcgBzAGkAbwBuACAAMQAuADAAaQBjAG8AbQBvAG8Abmljb21vb24AaQBjAG8AbQBvAG8AbgBSAGUAZwB1AGwAYQByAGkAYwBvAG0AbwBvAG4ARgBvAG4AdAAgAGcAZQBuAGUAcgBhAHQAZQBkACAAYgB5ACAASQBjAG8ATQBvAG8AbgAuAAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=)
+ format('truetype'),                
+url(data:application/font-woff;charset=utf-8;base64,d09GRgABAAAAAAX0AAsAAAAABagAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABPUy8yAAABCAAAAGAAAABgDxINNGNtYXAAAAFoAAAATAAAAEwQS+BrZ2FzcAAAAbQAAAAIAAAACAAAABBnbHlmAAABvAAAAjQAAAI0FhCSOmhlYWQAAAPwAAAANgAAADYFOCztaGhlYQAABCgAAAAkAAAAJAfCA8ZobXR4AAAETAAAABQAAAAUBgAAAGxvY2EAAARgAAAADAAAAAwAKAEubWF4cAAABGwAAAAgAAAAIAAPAL9uYW1lAAAEjAAAAUUAAAFFVxmm7nBvc3QAAAXUAAAAIAAAACAAAwAAAAMEAAGQAAUAAAKZAswAAACPApkCzAAAAesAMwEJAAAAAAAAAAAAAAAAAAAAARAAAAAAAAAAAAAAAAAAAAAAQAAA8AoDwP/AAEADwABAAAAAAQAAAAAAAAAAAAAAIAAAAAAAAgAAAAMAAAAUAAMAAQAAABQABAA4AAAACgAIAAIAAgABACDwCv/9//8AAAAAACDwCv/9//8AAf/jD/oAAwABAAAAAAAAAAAAAAABAAH//wAPAAEAAAAAAAAAAAACAAA3OQEAAAAAAQAAAAAAAAAAAAIAADc5AQAAAAABAAAAAAAAAAAAAgAANzkBAAAAAAkAAABJBAADbgAUACkAPgBTAGgAfQCSAKcAvAAAJRUUBwYrASInJj0BNDc2OwEyFxYVERUUBwYrASInJj0BNDc2OwEyFxYVARUUBwYrASInJj0BNDc2OwEyFxYVARUUBwYrASInJj0BNDc2OwEyFxYVARUUBwYrASInJj0BNDc2OwEyFxYVARUUBwYrASInJj0BNDc2OwEyFxYVARUUBwYrASInJj0BNDc2OwEyFxYVARUUBwYrASInJj0BNDc2OwEyFxYVERUUBwYrASInJj0BNDc2OwEyFxYVASUQEBe3FxAQEBAXtxcQEBAQF7cXEBAQEBe3FxAQAW0QEBe2FxAQEBAXthcQEP6TEBAXtxcQEBAQF7cXEBABbRAQF7YXEBAQEBe2FxAQAW4QEBe3FxAQEBAXtxcQEP6SEBAXthcQEBAQF7YXEBABbhAQF7cXEBAQEBe3FxAQEBAXtxcQEBAQF7cXEBDubhcQEBAQF24XEBAQEBcBJG0XEBAQEBdtFxAQEBAX/txuFxAQEBAXbhcQEBAQFwJJbhcQEBAQF24XEBAQEBf+220XEBAQEBdtFxAQEBAX/txuFxAQEBAXbhcQEBAQFwJJbhcQEBAQF24XEBAQEBf+220XEBAQEBdtFxAQEBAXASVuFxAQEBAXbhcQEBAQFwAAAAEAAAABAAD+vV+qXw889QALBAAAAAAA0Qz0QQAAAADRDPRBAAAAAAQAA24AAAAIAAIAAAAAAAAAAQAAA8D/wAAABAAAAAAABAAAAQAAAAAAAAAAAAAAAAAAAAUAAAAAAAAAAAAAAAACAAAABAAAAAAAAAAACgAUAB4BGgABAAAABQC9AAkAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAADgCuAAEAAAAAAAEADgAAAAEAAAAAAAIADgBHAAEAAAAAAAMADgAkAAEAAAAAAAQADgBVAAEAAAAAAAUAFgAOAAEAAAAAAAYABwAyAAEAAAAAAAoANABjAAMAAQQJAAEADgAAAAMAAQQJAAIADgBHAAMAAQQJAAMADgAkAAMAAQQJAAQADgBVAAMAAQQJAAUAFgAOAAMAAQQJAAYADgA5AAMAAQQJAAoANABjAGkAYwBvAG0AbwBvAG4AVgBlAHIAcwBpAG8AbgAgADEALgAwAGkAYwBvAG0AbwBvAG5pY29tb29uAGkAYwBvAG0AbwBvAG4AUgBlAGcAdQBsAGEAcgBpAGMAbwBtAG8AbwBuAEYAbwBuAHQAIABnAGUAbgBlAHIAYQB0AGUAZAAgAGIAeQAgAEkAYwBvAE0AbwBvAG4ALgAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
+ format('woff');                font-weight: normal;                
+font-style: normal;            }            [class^="icon-"], [class*=" 
+icon-"] {                font-family: 'icomoon';                speak: 
+none;                font-style: normal;                font-weight: 
+normal;                font-variant: normal;                
+text-transform: none;                line-height: 1;                
+-webkit-font-smoothing: antialiased;                
+-moz-osx-font-smoothing: grayscale;            }            
+.icon-th:before {                content: "\f00a";            }			
+.integration-bar {                display: -webkit-box;                
+display: -o-flex;                display: -moz-box;                
+display: -ms-flexbox;                display: -webkit-flex;             
+   display: flex;                                -webkit-flex-flow: row 
+wrap;                -moz-flex-flow: row wrap;                
+-ms-flex-flow: row wrap;                -o-flex-flow: row wrap;         
+       flex-flow: row wrap;                                
+-webkit-justify-content: center;                -moz-justify-content: 
+center;                -ms-justify-content: center;                
+-o-justify-content: center;                justify-content: center;			  
+                  position: relative;                background: 
+#FAFAFA;                border: 0.1em solid #EEEEEE;                
+position: absolute;                padding: 0.6em;                width:
+ 27em;                                font-size: 1em;                
+box-shadow: -0.3em 0.3em 0.5em #aaa;            }            
+.integration-bar > div.arrow {                position:absolute;        
+        top: -1em;                left:50%;                
+margin-left:-1em;                width:0;                height:0;      
+          border-left: 1em solid transparent;                
+border-right: 1em solid transparent;                border-bottom: 1em 
+solid #eee;            }            .tile {                -webkit-flex:
+ 0 1 auto;                -moz-flex: 0 1 auto;                -ms-flex: 0
+ 1 auto;                -o-flex: 0 1 auto;                flex: 0 1 
+auto;                                border: 0.1em solid transparent;   
+             width: 8em;                font-family: sans-serif;        
+        margin: 0.2em;                padding: 1em;                
+text-decoration: none;                color: #696969;                
+vertical-align:top;            }            .tile:hover {               
+ border: 0.1em solid #eee            }            .tile > span {        
+        display: block;            }            .tile > span.icon {     
+           text-align: center;                font-size: 2em;           
+ }            .tile > span.icon span.tile-img {                
+overflow:hidden;            }            .tile > span.icon span.tile-img
+ img {                vertical-align: middle;                max-height:
+ 1em;            }            .tile > span.title {                
+padding: 0.8em 0 0 0;                text-align: center;            }		</style>	
+	<script type="text/javascript">/*<![CDATA[*/
+		jQuery(document).ready(function () {
+			//jQuery('.btn_integrationButton input[type="submit"]').integrationButton({
+			jQuery('.integration-button').integrationButton({
+		                dataUrl: 'https://ict.fit.cvut.cz/integration/edux.jsonp',
+                		locale: "cs"
+			});
+        	});
+	/*!]]>*/</script>
+	<div class="abutton integration-button"><span><i class="icon-th"></i></span></div>
+        <form class="button btn_logout" method="get" action="/courses/BI-PSI/labs/task2"><div class="no"><input name="do" value="logout" type="hidden"><input name="sectok" value="9917e9d3786da5725a49211c93e286e2" type="hidden"><input value="Odhlásit se" class="button" title="Odhlásit se" type="submit"></div></form>      </div>
+
+      <div class="clearer"></div>
+    </div>
+
+        <div class="breadcrumbs">
+      <span class="bchead">Historie:</span> <span class="bcsep">»</span> <a href="https://edux.fit.cvut.cz/courses/BI-PSI/teacher/start" class="breadcrumbs" title="teacher:start">Učitelé</a> <span class="bcsep">»</span> <a href="https://edux.fit.cvut.cz/courses/BI-PSI/teacher/sestaeli/start" class="breadcrumbs" title="teacher:sestaeli:start">Ing. Eliška Šestáková</a> <span class="bcsep">»</span> <a href="https://edux.fit.cvut.cz/courses/BI-PSI/classification/student/valkopat/start" class="breadcrumbs" title="classification:student:valkopat:start">Valkovič Patrik</a> <span class="bcsep">»</span> <a href="https://edux.fit.cvut.cz/courses/BI-PSI/start" class="breadcrumbs" title="start">BI-PSI - Počítačové sítě</a> <span class="bcsep">»</span> <a href="https://edux.fit.cvut.cz/courses/BI-PSI/labs/start" class="breadcrumbs" title="labs:start">Laboratorní cvičení</a> <span class="bcsep">»</span> <a href="https://edux.fit.cvut.cz/courses/BI-PSI/labs/task1" class="breadcrumbs" title="labs:task1">Domácí úloha č. 1 - TCP server</a> <span class="bcsep">»</span> <span class="curid"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/labs/task2" class="breadcrumbs" title="labs:task2">Domácí úloha č. 2 - UDP Klient</a></span>          </div>
+    
+        <div class="breadcrumbs">
+      <span class="bchead">Umístění: </span><a href="https://edux.fit.cvut.cz/courses/BI-PSI/start" title="start">BI-PSI - Počítačové sítě</a> » <a href="https://edux.fit.cvut.cz/courses/BI-PSI/labs/start" title="labs:start">Laboratorní cvičení</a> » <a href="https://edux.fit.cvut.cz/courses/BI-PSI/labs/task2" title="labs:task2">Domácí úloha č. 2 - UDP Klient</a>    </div>
+    
+  </div>
+  
+  
+  <div id="sidebar">
+
+
+<h2><a name="bi-psi" id="bi-psi">BI-PSI</a></h2>
+<div class="level2">
+<ul>
+<li class="level1"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/classification/student/valkopat/start" class="wikilink1" title="classification:student:valkopat:start">Studijní výsledky</a></li>
+<li class="level1"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/student/valkopat/start" class="wikilink2" title="student:valkopat:start" rel="nofollow">Osobní namespace</a></li>
+</ul>
+
+</div>
+<!-- SECTION "BI-PSI" [13-57] -->
+<h2><a name="obsah" id="obsah">Obsah</a></h2>
+<div class="level2">
+<ul>
+<li class="level1"><div class="li">
+ <a href="https://edux.fit.cvut.cz/courses/BI-PSI/start" class="wikilink1" title="start">Hlavní stránka</a>
+</div></li>
+</ul>
+
+
+<div>
+
+<ul class="idx">
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/av/start" class="indexmenu_idx_head">A/V záznam</a></div></li>
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/parttime/start" class="indexmenu_idx_head">Kombinované studium</a></div></li>
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/annotation/start" class="indexmenu_idx_head">Anotace</a></div></li>
+<li class="open"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/classification/start" class="indexmenu_idx_head">Hodnocení</a></div>
+<ul class="idx">
+<li class="level2"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/classification/anketa" class="wikilink1" title="classification:anketa">Hodnocení výuky</a></div></li>
+</ul>
+</li>
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/en/start" class="indexmenu_idx_head">BIE-PSI - Computer Networks</a></div></li>
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/labs/start" class="indexmenu_idx_head">Laboratorní cvičení</a></div></li>
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/lectures/start" class="indexmenu_idx_head">Přednášky</a></div></li>
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/seminars/start" class="indexmenu_idx_head">Prosemináře</a></div></li>
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/student?idx=student" class="indexmenu_idx">student</a></div></li>
+<li class="level1"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/priklady" class="wikilink1" title="priklady">TCP and UDP examples</a></div></li>
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/teacher/start" class="indexmenu_idx_head">Učitelé</a></div></li>
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/team/start" class="indexmenu_idx_head">Týmy</a></div></li>
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/tutorials?idx=tutorials" class="indexmenu_idx">tutorials</a></div></li>
+<li class="closed"><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI/vyuka?idx=vyuka" class="indexmenu_idx">vyuka</a></div></li></ul>
+</div>
+
+</div>
+<!-- SECTION "Obsah" [58-] --><div class="funding">
+<p>
+<a href="https://edux.fit.cvut.cz/courses/BI-PSI/lib/exe/fetch.php?hash=79c566&amp;media=http%3A%2F%2Fedux.fit.cvut.cz%2F_media%2Foppa.png" class="media" title="http://edux.fit.cvut.cz/_media/oppa.png"><img src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/fetch.png" class="media" title="'OPPA/PRAHA/EU'" alt="'OPPA/PRAHA/EU'"></a>
+</p>
+
+<p>
+Příprava studijního programu Informatika je podporována projektem financovaným z <a href="http://www.esfcr.cz/" class="urlextern" target="_blank" title="http://www.esfcr.cz/" rel="nofollow">Evropského sociálního fondu</a> a rozpočtu <a href="http://www.praha.eu/" class="urlextern" target="_blank" title="http://www.praha.eu/" rel="nofollow"> hlavního města Prahy</a>.
+</p>
+
+<p>
+Praha &amp; EU: Investujeme do vaší budoucnosti
+</p>
+</div></div>    <div class="page_with_sidebar">
+  
+<div class="plugin_translation"><span>Překlady této stránky:</span> <ul>  <li><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI//labs/task2" class="wikilink1" title="česky">cs</a></div></li>  <li><div class="li"><a href="https://edux.fit.cvut.cz/courses/BI-PSI//en/labs/task2" class="wikilink2" title="English">en</a></div></li></ul></div>
+    <!-- wikipage start -->
+    <!-- TOC START -->
+<div class="toc">
+<div class="tocheader toctoggle" id="toc__header" style="cursor: pointer;"><span id="toc__toggle" style="cursor: pointer;" class="toc_close"><span>−</span></span>Obsah</div>
+<div id="toc__inside">
+
+<ul class="toc">
+<li class="level1"><div class="li"><span class="li"><a href="#domaci_uloha_c_2_-_udp_klient" class="toc">Domácí úloha č. 2 - UDP Klient</a></span></div>
+<ul class="toc">
+<li class="level2"><div class="li"><span class="li"><a href="#situace" class="toc">Situace</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#ukoly" class="toc">Úkoly</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#obecne_schema_komunikace" class="toc">Obecné schema komunikace</a></span></div>
+<ul class="toc">
+<li class="level3"><div class="li"><span class="li"><a href="#format_paketu" class="toc">Formát paketu</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#sekvencni_cislo_a_cislo_potvrzeni" class="toc">Sekvenční číslo a číslo potvrzení</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#data" class="toc">Data</a></span></div></li>
+</ul>
+</li>
+<li class="level2"><div class="li"><span class="li"><a href="#popis_protokolu" class="toc">Popis protokolu</a></span></div>
+<ul class="toc">
+<li class="level3"><div class="li"><span class="li"><a href="#navazani_spojeni" class="toc">Navázání spojení</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#prenos_dat" class="toc">Přenos dat</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#ukonceni_spojeni" class="toc">Ukončení spojení</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#prikazy" class="toc">Příkazy</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#prijeti_chybneho_paketu" class="toc">Přijetí chybného paketu</a></span></div></li>
+<li class="level3"><div class="li"><span class="li"><a href="#priklady_komunikace" class="toc">Příklady komunikace</a></span></div></li>
+</ul>
+</li>
+<li class="level2"><div class="li"><span class="li"><a href="#chybovost_site" class="toc">Chybovost sítě</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#pozadavky" class="toc">Požadavky</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#testovani" class="toc">Testování</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#ke_stazeni" class="toc">Ke stažení</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#termin_a_zpusob_odevzdani" class="toc">Termín a způsob odevzdání</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#bodovani" class="toc">Bodování</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#literatura" class="toc">Literatura</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#doporucena_literatura" class="toc">Doporučená literatura</a></span></div></li>
+<li class="level2"><div class="li"><span class="li"><a href="#odkazy" class="toc">Odkazy</a></span></div></li></ul>
+</li></ul>
+</div>
+</div>
+<!-- TOC END -->
+
+
+
+<h1><a name="domaci_uloha_c_2_-_udp_klient" id="domaci_uloha_c_2_-_udp_klient">Domácí úloha č. 2 - UDP Klient</a></h1>
+<div class="level1">
+
+</div>
+
+<h2><a name="situace" id="situace">Situace</a></h2>
+<div class="level2">
+
+<p>
+
+Na oběžné dráze planety Mars létá sonda, která sbírá informace a 
+fotografie od robotů pracujících na povrchu planety (viz úloha č.1). 
+Získané informace se poté přenášejí ze sondy do řídícího centra na Zemi.
+</p>
+
+</div>
+
+<h2><a name="ukoly" id="ukoly">Úkoly</a></h2>
+<div class="level2">
+
+<p>
+
+Vaším úkolem je:
+</p>
+<ol>
+<li class="level1"><div class="li">
+ načíst ze sondy poslední známou fotografii okolí, aby mohli vědci zjistit, v jakém terénu se roboti nachází
+</div></li>
+<li class="level1"><div class="li">
+ provést upload nového firmwaru do sondy
+</div></li>
+</ol>
+
+
+</div>
+
+<h2><a name="obecne_schema_komunikace" id="obecne_schema_komunikace">Obecné schema komunikace</a></h2>
+<div class="level2">
+
+<p>
+
+Sonda komunikuje pomocí protokolu UDP a přijímá data na portu 4000. 
+Proces běžící v sondě budeme nazývat serverem a proces, který se sondou 
+komunikuje, klientem. 
+</p>
+
+</div>
+
+<h3><a name="format_paketu" id="format_paketu">Formát paketu</a></h3>
+<div class="level3">
+<table class="inline">
+	<tbody><tr class="row0">
+		<th class="col0">identifikátor 'spojení'</th><th class="col1">sekvenční číslo</th><th class="col2">číslo potvrzení</th><th class="col3">příznak</th><th class="col4">data</th>
+	</tr>
+	<tr class="row1">
+		<td class="col0">4B</td><td class="col1">2B</td><td class="col2">2B</td><td class="col3">1B</td><td class="col4">0-255B</td>
+	</tr>
+</tbody></table>
+<ul>
+<li class="level1"><div class="li">
+ identifikátor 'spojení' - vygenerovaný serverem (pro umožnění transportu dat více souborů najednou),
+</div></li>
+<li class="level1"><div class="li">
+ sekvenční číslo - číslo prvního byte v posílaných datech,
+</div></li>
+<li class="level1"><div class="li">
+ číslo potvrzení - číslo očekávaného byte v přijímaných datech (číslo potvrzení + délka dat),
+</div></li>
+<li class="level1"><div class="li">
+ příznak - uveden dále,
+</div></li>
+<li class="level1"><div class="li">
+ data - přenášená data
+</div></li>
+</ul>
+
+
+<p>
+
+Identifikátor spojení a sekvenční čísla se přenášejí v reprezentaci network byte order (big endian). Příklad:
+</p>
+<table class="inline">
+	<tbody><tr class="row0">
+		<th class="col0">dekadicky</th><th class="col1">hexadecimálně</th><th class="col2">pořadí bytů</th>
+	</tr>
+	<tr class="row1">
+		<td class="col0 centeralign">  1234   </td><td class="col1 centeralign">  04D2h  </td><td class="col2 centeralign">  04h D2h  </td>
+	</tr>
+	<tr class="row2">
+		<td class="col0 centeralign">  34566  </td><td class="col1 centeralign">  8706h  </td><td class="col2 centeralign">  87h 06h  </td>
+	</tr>
+</tbody></table>
+
+</div>
+
+<h4><a name="identifikator_spojeni" id="identifikator_spojeni">Identifikátor spojení</a></h4>
+<div class="level4">
+
+<p>
+Identifikátor spojení je nenulové číslo. Při navazování spojení posílá 
+klient identifikátor spojení nastavený na nulu. Při další komunikaci 
+použije klient identifikátor spojení, který mu vrátí server v prvním 
+paketu.
+</p>
+
+</div>
+
+<h4><a name="priznaky" id="priznaky">Příznaky</a></h4>
+<div class="level4">
+<table class="inline">
+	<tbody><tr class="row0">
+		<th class="col0">číslo bitu</th><th class="col1">7</th><th class="col2">6</th><th class="col3">5</th><th class="col4">4</th><th class="col5">3</th><th class="col6 centeralign">  2  </th><th class="col7 centeralign">  1  </th><th class="col8 centeralign">  0  </th>
+	</tr>
+	<tr class="row1">
+		<td class="col0">příznak</td><td class="col1 centeralign">  -  </td><td class="col2 centeralign">  -  </td><td class="col3 centeralign">  -  </td><td class="col4 centeralign">  -  </td><td class="col5 centeralign">  -  </td><td class="col6 centeralign">  SYN  </td><td class="col7 centeralign">  FIN  </td><td class="col8 centeralign">  RST  </td>
+	</tr>
+</tbody></table>
+<table class="inline">
+	<tbody><tr class="row0">
+		<th class="col0">příznak</th><th class="col1">význam</th>
+	</tr>
+	<tr class="row1">
+		<td class="col0 centeralign">  SYN  </td><td class="col1"> Otevření 
+nového spojení. Posílá klient i server (pouze) na začátku v prvním 
+paketu. V datové části musí být právě 1 byte s kódem příkazu.</td>
+	</tr>
+	<tr class="row2">
+		<td class="col0 centeralign">  FIN  </td><td class="col1 leftalign"> 
+Ukončení spojení. Posílá klient i server, pokud již nemají žádná další 
+data k odeslání. Paket s nastaveným příznakem FIN již nemůže obsahovat 
+žádná data. Ukončení spojení nelze odvolat. Oba směry spojení se 
+uzavírají zvlášť. Sekvenční číslo se po odeslání FIN již nesmí zvětšit. 
+ </td>
+	</tr>
+	<tr class="row3">
+		<td class="col0 centeralign">  RST  </td><td class="col1"> Zrušení 
+spojení kvůli chybě. Posílá klient i server v případě detekování logické
+ chyby v hodnotách v hlavičce. Např. přijatý paket neobsahuje příznak 
+SYN a ID spojení není evidováno. Nebo je hodnota potvrzovacího čísla 
+menší, než byla v posledním přijatém paketu (klesá). Pozor na přetečení 
+sekvenčních a potvrzovacích čísel. Žádná z komunikujících stran po 
+odeslání paketu s příznakem RST již dále neukončuje spojení standardním 
+způsobem - spojení je přenosem paketu s příznakem RST definitivně 
+ukončeno. </td>
+	</tr>
+</tbody></table>
+
+<p>
+
+Jednotlivé příznaky (SYN, FIN, RST) nelze spolu kombinovat.
+</p>
+
+</div>
+
+<h3><a name="sekvencni_cislo_a_cislo_potvrzeni" id="sekvencni_cislo_a_cislo_potvrzeni">Sekvenční číslo a číslo potvrzení</a></h3>
+<div class="level3">
+
+<p>
+
+Sekvenční číslo je pořadové číslo prvního bytu v proudu posílaných dat. 
+Na začátku je toto číslo nastaveno na nulu. Nastavení příznaku SYN nebo 
+FIN toto číslo nemění.
+</p>
+
+<p>
+Číslo potvrzení sděluje protistraně pořadové číslo očekávaného bytu v 
+proudu přijímaných dat. Potvrzuje zároveň všechny byty s nižším 
+pořadovým číslem.
+</p>
+
+<p>
+Tato čísla nemají znaménko a mohou přetéct. Přetečení nemá na komunikaci vliv.
+</p>
+
+</div>
+
+<h3><a name="data" id="data">Data</a></h3>
+<div class="level3">
+
+<p>
+
+Délka dat je určena velikostí paketu mínus velikost hlavičky. Poslat lze
+ najednou maximálně 255 bytů dat, takže nejmenší velikost datagramu je 9
+ B (pouze hlavička) a největší 9 + 255 = 264 B. Data lze poslat pouze v 
+paketu bez nastaveného příznaku FIN a RST. Pokud má paket nastaven 
+příznak SYN, musí být v datové část 1 byte s kódem příkazu.
+</p>
+
+<p>
+Data poslaná klientem i serverem se v číslují pomocí sekvenčního čísla, 
+avšak pouze tehdy, pokud není nastaven žádný příznak (zejména SYN).
+</p>
+
+</div>
+
+<h2><a name="popis_protokolu" id="popis_protokolu">Popis protokolu</a></h2>
+<div class="level2">
+
+</div>
+
+<h3><a name="navazani_spojeni" id="navazani_spojeni">Navázání spojení</a></h3>
+<div class="level3">
+
+<p>
+
+Iniciátorem spojení je vždy klient.
+</p>
+
+<p>
+Klient pošle první datagram s příznakem SYN a s identifikátorem spojení,
+ sekvenčním číslem a číslem potvrzení nastaveným na nulu. Datová část 
+musí obsahovat právě 1 byte s kódem příkazu:
+
+</p>
+<table class="inline">
+	<tbody><tr class="row0">
+		<th class="col0">příkaz</th><th class="col1">význam</th>
+	</tr>
+	<tr class="row1">
+		<td class="col0">01h</td><td class="col1">Download fotografie okolí</td>
+	</tr>
+	<tr class="row2">
+		<td class="col0">02h</td><td class="col1">Upload nového firmwaru</td>
+	</tr>
+</tbody></table>
+
+<p>
+
+Server odpoví datagramem s nastaveným příznakem SYN, nenulovým 
+identifikátorem spojení a se sekvenčním číslem a číslem potvrzení 
+nastavenými na nulu. Datová část obsahuje 1 byte s kódem příkazu, který 
+bude proveden.
+</p>
+
+<p>
+Po přijetí tohoto datagramu klientem je navázáno spojení. V dalším 
+paketu začne klient nebo server odesílat data (podle poslaného příkazu).
+</p>
+
+<p>
+Pokud se ztratí paket s příznakem SYN odeslaný klientem, musí klient po 100 ms odeslat nový.
+</p>
+
+<p>
+Pokud se ztratí paket s příznakem SYN odeslaný serverem, musí klient po 
+100 ms odeslat nový SYN paket. V případě downloadu začne zřejmě server 
+odesílat data, klient však nezná číslo spojení a tak tato data nemůže 
+přijmout. Toto serverem polootevřené spojení se po 20. opakování 
+stejného paketu uzavře (bude odeslán paket s příznakem RST a nastaveným 
+identifikátorem spojení). V případě uploadu se toto spojení uzavře po 
+20. opakování SYN paketu.
+</p>
+
+<p>
+<em>Poznámka: Data odeslaná serverem budou zcela určitě doručena 
+klientovi, který o spojení žádal. Zdálo by se tedy, že v případě 
+downloadu nemusí server odesílat paket s příznakem SYN (mohl by odeslat 
+rovnou část dat). Protože však klient může podle této specifikace 
+navázat více spojení najednou, tedy odeslat více inicializačních paketů 
+najednou (třeba s různými příkazy), musí klient počkat na SYN paket s 
+číslem spojení. Potom si také podle kódu příkazu (v datové části v 
+odpovědi od serveru) může správně přiřadit čísla spojení.</em>
+</p>
+
+</div>
+
+<h3><a name="prenos_dat" id="prenos_dat">Přenos dat</a></h3>
+<div class="level3">
+
+<p>
+
+Data lze posílat až po navázání spojení. Posílání dat je neslučitelné s 
+nastavováním libovolných příznaků (SYN, RST, FIN) (v této terminologii 
+nechápeme příkaz v prvním paketu poslaným klientem jako data). V dalším 
+textu nazveme vysílačem tu stranu, která data odesílá a přijímačem 
+protistranu.
+</p>
+
+<p>
+Pokud posílá některá ze stran soubor dat delší než 255 bajtů <em>(což je v této uloze vždy)</em>, používá se okénkové potvrzovací schéma s fixní velikostí okénka W = 2040 bytů a timeoutem Tout = 100 ms.
+</p>
+
+<p>
+Vysílač se snaží mít v komunikačním kanále právě tolik nepotvrzených 
+bytů odesílaného proudu dat, jako je velikost okénka. Při zahájení 
+komunikace zapíše do kanálu W bytů a čeká na potvrzení. Přijímač reaguje
+ na všechny příchozí pakety odesláním potvrzovacího paketu (paketu s 
+nastaveným potvrzovacím číslem). Potvrzovací číslo popisuje pořadové 
+číslo očekávaného bytu v proudu přijímaných dat, takže každé potvrzovací
+ číslo potvrzuje příjem všech dat až do tohoto pořadového čísla (bez 
+něj). Pokud přijme přijímač data mimo pořadí, zapamatuje si je a odešle 
+potvrzovací číslo nastavené za poslední přijatý byte v proudu dat bez 
+mezer. Jakmile jsou mezery zaplněny nově přijatými daty, posune přijímač
+ potvrzovací číslo tak, aby opět ukazovalo za poslední přijatý byte v 
+celistvém proudu přijímaných dat. Data mimo pořadí jsou tedy nakonec 
+využita, přijímač je však zprvu nepotvrzuje. Potvrzuje vždy pouze 
+přijatý datový proud bez mezer.
+</p>
+
+<p>
+Jakmile vysílací strana přijme paket s takovým potvrzením, které snižuje
+ počet nepotvrzených dat v odesílaném proudu, odešle další data, tak, 
+aby bylo v kanále opět W nepotvrzených bytů (říkáme, že posune okénko).
+</p>
+
+<p>
+Vysílač si pamatuje čas odeslání posledního paketu (označme T). Pokud 
+server nepřijme do času T + Tout žádné nové potvrzení, které snižuje 
+počet nepotvrzených dat, odešle vysílač W bytů od nevyššího přijatého 
+potvrzovacího čísla (říkáme, že odešle celé okénko). Nastaví také T na 
+novou hodnotu.
+</p>
+
+<p>
+Vysílač posílá vždy maximální možné množství dat v jednom paketu (255 
+bytů). Vyjímkou je poslední datový paket, který může obsahovat méně dat.
+ 
+</p>
+
+<p>
+Pokud vysílač přijme 3x po sobě stejné potvrzovací číslo, odešle ihned 
+do kanálu 1 paket s maximálním možným množstvím dat od pořadového čísla 
+shodného s přijatým potvrzovacím číslem a nastaví T na novou hodnotu.
+</p>
+
+</div>
+
+<h3><a name="ukonceni_spojeni" id="ukonceni_spojeni">Ukončení spojení</a></h3>
+<div class="level3">
+
+<p>
+
+Pokud vysílač odešle celý soubor a má všechna odeslaná data potvrzená, 
+uzavře spojení nastavením příznaku FIN. Tento příznak nelze kombinovat s
+ odesláním posledních dat. Přijímač vzápětí odešle také paket s 
+příznakem FIN.
+</p>
+
+<p>
+Spojení je oboustranně ukončeno v momentě, kdy obě strany, které již 
+odeslaly paket s nastaveným příznakem FIN, obdrží paket s nastaveným 
+příznakem FIN a potvrzovacím číslem se stejnou hodnotou, jako je 
+sekvenční číslo.
+</p>
+
+<p>
+Pokud dojde 20x po sobě k opakovanému odvysílání paketu se stejným 
+sekvenčním číslem, je spojení přerušeno, klient musí vypsat chybu při 
+přenosu. To platí i při uzavírání spojení, kdy je odesílán příznak FIN.
+</p>
+
+</div>
+
+<h3><a name="prikazy" id="prikazy">Příkazy</a></h3>
+<div class="level3">
+
+</div>
+
+<h4><a name="prikaz_01h_-_fotografie_okoli" id="prikaz_01h_-_fotografie_okoli">příkaz 01h - fotografie okolí</a></h4>
+<div class="level4">
+
+<p>
+
+Jakmile robot odešle první paket s nastaveným příznakem SYN, začne ihned
+ odesílat fotografii okolí. Pokud byl první paket (SYN) ztracen, spojení
+ po marném odeslání 20 stejných paketů expiruje (klient žádá o nové 
+spojení posláním nového SYN paketu).
+</p>
+
+<p>
+Poslaná fotografie je ve formátu <acronym title="Portable Network Graphics">PNG</acronym>
+ a posílá se pouze její obsah, nikoliv název souboru nebo nějaká další 
+informace. Každá odeslaná fotografie je jedinečná (fotografie získané v 
+rámci různých spojení se liší).
+</p>
+
+</div>
+
+<h4><a name="prikaz_02h_-_upload_noveho_firmwaru" id="prikaz_02h_-_upload_noveho_firmwaru">příkaz 02h - upload nového firmwaru</a></h4>
+<div class="level4">
+
+<p>
+
+Jakmile klient přijme od serveru první paket s nastaveným příznakem SYN,
+ začne odesílat obsah souboru s firmwarem. Neposílá se žádná jiná 
+doplňující informace, jako např. jméno souboru nebo jeho délka.
+</p>
+
+</div>
+
+<h3><a name="prijeti_chybneho_paketu" id="prijeti_chybneho_paketu">Přijetí chybného paketu</a></h3>
+<div class="level3">
+
+<p>
+
+Po přijetí chybného paketu odešle příjemce (klient i server) paket s příznakem RST. Chybný paket je paket, který:
+</p>
+<ul>
+<li class="level1"><div class="li">
+ neobsahuje platné ID spojení a nemá nastaven příznak SYN
+</div></li>
+<li class="level1"><div class="li">
+ nemá potvrzovací číslo v intervalu &lt;seq - velikost okénka, seq&gt;  kde <em>seq</em> je sekvenční číslo příjemce
+</div></li>
+<li class="level1"><div class="li">
+ má nastaven více příznaků najednou
+</div></li>
+<li class="level1"><div class="li">
+ má nastaven příznak SYN a datová část neobsahuje platný příkaz (délka dat není 01h a/nebo příkaz není 01h nebo 02h)
+</div></li>
+<li class="level1"><div class="li">
+ má nastaven příznak FIN a zároveň obsahuje data
+</div></li>
+</ul>
+
+
+<p>
+
+Pozor, sekvenční a potvrzovací čísla mohou přetéct, což nesmí mít na komunikaci vliv.
+</p>
+
+</div>
+
+<h3><a name="priklady_komunikace" id="priklady_komunikace">Příklady komunikace</a></h3>
+<div class="level3">
+
+<p>
+
+<a href="https://edux.fit.cvut.cz/courses/BI-PSI/vyuka/y36psi/cviceni/uloha2-priklady" class="wikilink1" title="vyuka:y36psi:cviceni:uloha2-priklady">Příklady komunikace jsou na zvláštní stránce.</a>
+</p>
+
+</div>
+
+<h2><a name="chybovost_site" id="chybovost_site">Chybovost sítě</a></h2>
+<div class="level2">
+
+<p>
+
+Možné chyby na síti:
+</p>
+<ul>
+<li class="level1"><div class="li">
+ ztráta libovolného paketu,
+</div></li>
+<li class="level1"><div class="li">
+ duplikace libovolného paketu,
+</div></li>
+<li class="level1"><div class="li">
+ prohození libovolných paketů,
+</div></li>
+<li class="level1"><div class="li">
+ proměnné zpoždění sítě.
+</div></li>
+</ul>
+
+
+<p>
+
+Server tyto chyby emuluje. Může se stát, že server 20x způsobí ztrátu 
+stejného paketu a dojde k odeslání paketu s příznakem RST a rozpadu 
+spojení. Tato chyba není na závadu při odevzdávání úlohy (přenos se při 
+odevzdávání zopakuje).
+</p>
+
+</div>
+
+<h2><a name="pozadavky" id="pozadavky">Požadavky</a></h2>
+<div class="level2">
+<ul>
+<li class="level1"><div class="li">
+ program musí 100% fungovat s protistranou na serveru baryk.fit.cvut.cz (viz níže),
+</div></li>
+<li class="level1"><div class="li">
+ program musí být stabilní a odolný proti neočekávaným vstupům,
+</div></li>
+<li class="level1"><div class="li">
+ přenesený soubor (download i upload) nesmí být poškozen,
+</div></li>
+<li class="level1"><div class="li">
+ program se musí umět vyrovnat s faktem, že UDP pakety se občas ztratí, zduplikují či prohodí,
+</div></li>
+<li class="level1"><div class="li">
+ program by měl vypisovat alespoň základní informace o svém stavu (např. posílané a přijímané příkazy či odpovědi),
+</div></li>
+<li class="level1"><div class="li">
+ IP adresa nebo <acronym title="Domain Name System">DNS</acronym> jméno 
+serveru se zadává jako parametr v příkazové řádce při spuštění programu 
+(tzn. není zadrátovaná ve zdrojového kódu), syntaxe viz níže,
+</div></li>
+<li class="level1"><div class="li">
+ zdrojový text musí být komentovaný, v hlavičce všech zdrojových textů musí být uveden autor,
+</div></li>
+<li class="level1"><div class="li">
+ lze použít libovolný programovací jazyk, jedinou podmínkou je schopnost odprezentovat funkčnost v síťové laboratoři,
+</div></li>
+<li class="level1"><div class="li">
+ doporučuje se psát kód do jednoho zdrojového kódu pro snadnější uploadování,
+</div></li>
+<li class="level1"><div class="li">
+ program musí přijímat parametry z příkazové řádky s následující syntaxí:
+</div></li>
+</ul>
+
+
+<p>
+
+<strong>Download fotografie</strong> (příkaz 01h): <code>./robot &lt;server&gt;</code> <br>
+
+Výsledná fotografie bude uložena v souboru <em>foto.png</em>.
+</p>
+
+<p>
+<strong>Upload firmwaru</strong> (příkaz 02h): <code>./robot &lt;server&gt; &lt;firmware.bin&gt;</code>
+</p>
+
+<p>
+<em>&lt;server&gt;</em> je jméno nebo IP adresa serveru a <em>&lt;firmware&gt;</em> je soubor s novým firmwarem pro robota.
+</p>
+
+<p>
+Příklad volání: <code>java robot.Robot 81.25.17.115 /data/firmware.bin</code>
+</p>
+
+</div>
+
+<h2><a name="testovani" id="testovani">Testování</a></h2>
+<div class="level2">
+
+<p>
+
+Pro testování můžete použít testovací obraz pro virtualizační systém 
+Virtualbox. Doporučuje se pro testovaní pod Windows, nebo OSX. Pro 
+testovaní je třeba síťový adaptér pro virtuální stroj nastavit jako 
+bridge adapter (síťový most) - toto je vhodné pokud jste v lokální síti,
+ kde virtuální stroj dostane vlastní IP adresu. Pokud to není možné, 
+použijte Host only (Síť pouze s hostem). Po naběhnutí je nutné zjistit 
+přidělenou IP adresu virtuálního stroje, na ni se budete svým klientem 
+připojovat. Poté stačí spustit testovací server pomocí příkazu: <em>Spust_server_pro_ulohu_c_2</em>
+</p>
+
+<p>
+Testovací obraz obsahuje i klienta v binární podobě.
+</p>
+
+<p>
+K dispozici je staticky přeložený UDP server, který běží v testovači. Poznámky k jeho použití:
+</p>
+<ul>
+<li class="level1"><div class="li">
+ Ověřte si občas, není-li k dispozici novější verze.
+</div></li>
+<li class="level1"><div class="li">
+ Server spusťte např. takto: <code>./kareludp-server  1000 - foto.png firmware.bin</code>
+</div></li>
+</ul>
+
+
+<p>
+kde 1000 je UID uživatele (jakékoliv číslo postačí), pod kterým server poběží, <em>foto.png</em> je cesta k fotografii a <em>firmware.bin</em> je akceptovaný firmware.
+</p>
+<ul>
+<li class="level1"><div class="li">
+ Nebo můžete spustit server skriptem <em>Spust_server_pro_ulohu_c_2</em>, nebo <em>Spust_server_pro_ulohu_c_2_64bit</em>.
+</div></li>
+</ul>
+
+
+</div>
+
+<h2><a name="ke_stazeni" id="ke_stazeni">Ke stažení</a></h2>
+<div class="level2">
+<table class="inline">
+	<tbody><tr class="row0">
+		<th class="col0">soubor</th><th class="col1">odkaz</th>
+	</tr>
+	<tr class="row1">
+		<td class="col0">Referenční řešení - server + klient (binárky pro linux 32bit i 64bit)</td><td class="col1"> <a href="https://edux.fit.cvut.cz/courses/BI-PSI/_media/kareludp.zip" class="media mediafile mf_zip" title="kareludp.zip">kareludp.zip</a> </td>
+	</tr>
+	<tr class="row2">
+		<td class="col0">Testovací obraz pro Virtualbox </td><td class="col1"> <a href="https://edux.fit.cvut.cz/courses/BI-PSI/_media/bi-psi_core_6.1.ova.zip" class="media mediafile mf_zip" title="bi-psi_core_6.1.ova.zip">bi-psi_core_6.1.ova.zip</a> </td>
+	</tr>
+</tbody></table>
+
+</div>
+
+<h2><a name="termin_a_zpusob_odevzdani" id="termin_a_zpusob_odevzdani">Termín a způsob odevzdání</a></h2>
+<div class="level2">
+
+<p>
+
+Úlohu je nutné nahrát na odevzdávací server <a href="https://bouda.felk.cvut.cz/" class="urlextern" target="_blank" title="https://bouda.felk.cvut.cz" rel="nofollow">PSI bouda</a> a odprezentovat vyučujícímu.
+</p>
+
+<p>
+Odevzdat lze pouze takový program, který je schopný úspěšně stáhnout 
+fotografii (pro odevzdání stačí předvést úspěšné stažení souboru s 
+fotografií bez ohledu na následky u serveru či klienta) 
+</p>
+
+<p>
+Deadline pro tuto úlohu je poslední zkouškový termín.
+</p>
+
+<p>
+</p><p></p><div class="noteimportant">Prezentovat úlohu lze i během 
+zkouškového období vždy v den termínu konání zkoušky. Po každé zkoušce 
+budou probíhat prezentace v prostoru před kanceláří 1133 v budově A.
+</div><p></p>
+<p></p>
+
+</div>
+
+<h2><a name="bodovani" id="bodovani">Bodování</a></h2>
+<div class="level2">
+
+<p>
+Za úlohu můžete dostat max. 8 bodů. Penalizace:
+</p>
+<ul>
+<li class="level1"><div class="li">
+ program neumí stáhnout fotografii: <em>nelze odevzdat !</em>
+</div></li>
+<li class="level1"><div class="li">
+ program neumí provést upload firmwaru: -4
+</div></li>
+<li class="level1"><div class="li">
+ nebylo korektně uzavřeno spojení: -1
+</div></li>
+<li class="level1"><div class="li">
+ chybně implementovaný okénkový protokol: dle povahy -1 až -4
+</div></li>
+<li class="level1"><div class="li">
+ nestabilita: -3
+</div></li>
+<li class="level1"><div class="li">
+ malá odolnost vůči nestandardním vstupům: -3
+</div></li>
+<li class="level1"><div class="li">
+ chyby v programu, které se neprojevily přímo: dle povahy -1 až -5
+</div></li>
+<li class="level1"><div class="li">
+ nečistý zdrojový kód: -1
+</div></li>
+<li class="level1"><div class="li">
+ zdrojový kód nebyl průběžně uploadován na server Baryk: -5
+</div></li>
+</ul>
+
+
+</div>
+
+<h2><a name="literatura" id="literatura">Literatura</a></h2>
+<div class="level2">
+
+<p>
+
+<a href="http://www2.rad.com/networks/2004/sliding_window/demo.html" class="urlextern" target="_blank" title="http://www2.rad.com/networks/2004/sliding_window/demo.html" rel="nofollow">Demo aplet pro lepší pochopení okénkového komunikačního schématu</a>
+</p>
+
+</div>
+
+<h2><a name="doporucena_literatura" id="doporucena_literatura">Doporučená literatura</a></h2>
+<div class="level2">
+<ul>
+<li class="level1"><div class="li">
+ <a href="http://www2.rad.com/networks/2004/sliding_window/" class="urlextern" target="_blank" title="http://www2.rad.com/networks/2004/sliding_window/" rel="nofollow">Sliding window demo</a>
+</div></li>
+<li class="level1"><div class="li">
+ <a href="http://www.cs.ucsb.edu/%7Ealmeroth/classes/S00.276/hw1/hw1.html" class="urlextern" target="_blank" title="http://www.cs.ucsb.edu/~almeroth/classes/S00.276/hw1/hw1.html" rel="nofollow">Reliable Message Transport Protocol</a>
+</div></li>
+</ul>
+
+
+</div>
+
+<h2><a name="odkazy" id="odkazy">Odkazy</a></h2>
+<div class="level2">
+<ul>
+<li class="level1"><div class="li">
+ <a href="http://en.wikipedia.org/wiki/Berkeley_sockets" class="urlextern" target="_blank" title="http://en.wikipedia.org/wiki/Berkeley_sockets" rel="nofollow">Wikipedia - BSD sockets</a>
+</div></li>
+<li class="level1"><div class="li">
+ <a href="http://java.sun.com/docs/books/tutorial/networking/TOC.html" class="urlextern" target="_blank" title="http://java.sun.com/docs/books/tutorial/networking/TOC.html" rel="nofollow">Rozhraní Sockets - Java</a>
+</div></li>
+<li class="level1"><div class="li">
+ <a href="http://www.eli.sdsu.edu/courses/spring96/cs596/notes/andrew/javanet.html" class="urlextern" target="_blank" title="http://www.eli.sdsu.edu/courses/spring96/cs596/notes/andrew/javanet.html" rel="nofollow">Rozhraní Sockets klient TCP a UDP - Java</a>
+</div></li>
+<li class="level1"><div class="li">
+ <a href="http://www.earchiv.cz/a93/a315c110.php3" class="urlextern" target="_blank" title="http://www.earchiv.cz/a93/a315c110.php3" rel="nofollow">Transportní rozhraní - BSD sockets</a>
+</div></li>
+<li class="level1"><div class="li">
+ <strong><a href="http://www.developerweb.net/forum/forumdisplay.php?f=70" class="urlextern" target="_blank" title="http://www.developerweb.net/forum/forumdisplay.php?f=70" rel="nofollow">Unix sockets FAQ - vynikající</a></strong>
+</div></li>
+</ul>
+
+
+</div>
+
+    <!-- wikipage stop -->
+  </div>
+
+  <div class="clearer">&nbsp;</div>
+
+  
+  <div class="stylefoot">
+
+    <div class="meta">
+      <div class="user">
+        Přihlášen(a) jako: valkopat (valkopat)      </div>
+      <div class="doc">
+        /mnt/www/courses/BI-PSI/data/pages/labs/task2.txt · Poslední úprava: 2017/03/12 21:55 autor: cernyvi2      </div>
+    </div>
+
+   
+    <div class="bar" id="bar__bottom">
+      <div class="bar-left" id="bar__bottomleft">
+                <form class="button btn_revs" method="get" action="/courses/BI-PSI/labs/task2"><div class="no"><input name="do" value="revisions" type="hidden"><input value="Starší verze" class="button" accesskey="o" title="Starší verze [O]" type="submit"></div></form>      </div>
+      <div class="bar-right" id="bar__bottomright">
+                        <form class="button btn_profile" method="get" action="/courses/BI-PSI/labs/task2"><div class="no"><input name="do" value="profile" type="hidden"><input value="Upravit profil" class="button" title="Upravit profil" type="submit"></div></form>        <form class="button btn_logout" method="get" action="/courses/BI-PSI/labs/task2"><div class="no"><input name="do" value="logout" type="hidden"><input name="sectok" value="9917e9d3786da5725a49211c93e286e2" type="hidden"><input value="Odhlásit se" class="button" title="Odhlásit se" type="submit"></div></form>        <form class="button btn_index" method="get" action="/courses/BI-PSI/labs/task2"><div class="no"><input name="do" value="index" type="hidden"><input value="Index" class="button" accesskey="x" title="Index [X]" type="submit"></div></form>        <a class="nolink" href="#dokuwiki__top"><input class="button" value="Nahoru" onclick="window.scrollTo(0, 0)" title="Nahoru" type="button"></a>&nbsp;
+      </div>
+      <div class="clearer"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="footerinc">
+
+  <a target="_blank" href="https://edux.fit.cvut.cz/courses/BI-PSI/feed.php" title="Recent changes RSS feed"><img src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/button-rss.png" alt="Recent changes RSS feed" width="80" height="15"></a>
+
+  <!-- <a target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/2.0/" rel="license" title="Creative Commons License"><img src="/courses/BI-PSI/lib/tpl/edux/images/button-cc.gif" width="80" height="15" alt="Creative Commons License" /></a> -->
+
+  <!-- <a target="_blank" href="https://www.paypal.com/xclick/business=andi%40splitbrain.org&amp;item_name=DokuWiki+Donation&amp;no_shipping=1&amp;no_note=1&amp;tax=0&amp;currency_code=EUR&amp;lc=US" title="Donate"><img src="/courses/BI-PSI/lib/tpl/edux/images/button-donate.gif" alt="Donate" width="80" height="15" /></a>-->
+
+  <a target="_blank" href="http://www.php.net/" title="Powered by PHP"><img src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/button-php.gif" alt="Powered by PHP" width="80" height="15"></a>
+
+  <a target="_blank" href="http://validator.w3.org/check/referer" title="Valid XHTML 1.0"><img src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/button-xhtml.png" alt="Valid XHTML 1.0" width="80" height="15"></a>
+
+  <a target="_blank" href="http://jigsaw.w3.org/css-validator/check/referer" title="Valid CSS"><img src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/button-css.png" alt="Valid CSS" width="80" height="15"></a>
+
+  <a target="_blank" href="http://wiki.splitbrain.org/wiki:dokuwiki" title="Driven by DokuWiki"><img src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/button-dw.png" alt="Driven by DokuWiki" width="80" height="15"></a>
+
+
+
+<!--
+
+<rdf:RDF xmlns="http://web.resource.org/cc/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<Work rdf:about="">
+   <dc:type rdf:resource="http://purl.org/dc/dcmitype/Text" />
+   <license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/2.0/" />
+</Work>
+
+<License rdf:about="http://creativecommons.org/licenses/by-nc-sa/2.0/">
+   <permits rdf:resource="http://web.resource.org/cc/Reproduction" />
+   <permits rdf:resource="http://web.resource.org/cc/Distribution" />
+   <requires rdf:resource="http://web.resource.org/cc/Notice" />
+   <requires rdf:resource="http://web.resource.org/cc/Attribution" />
+   <prohibits rdf:resource="http://web.resource.org/cc/CommercialUse" />
+   <permits rdf:resource="http://web.resource.org/cc/DerivativeWorks" />
+   <requires rdf:resource="http://web.resource.org/cc/ShareAlike" />
+</License>
+
+</rdf:RDF>
+
+-->
+
+
+</div>
+
+<div class="no"><img src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/indexer.gif" alt="" width="1" height="1"></div>
+
+
+<div id="gallery__overlay" style="display: none; position: fixed; top: 0px; left: 0px; z-index: 50; width: 100%; height: 100%;"><img id="gallery__loadingImage" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/loading.gif" style="position: relative; cursor: pointer;"></div><div id="gallery__lightbox" style="display: none; position: absolute; z-index: 60;"><img id="gallery__lightboxImage" style="cursor: pointer;"><img id="gallery__actionImage" style="display: none; position: absolute; top: 15px; left: 15px; z-index: 70; cursor: pointer;" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/expand.gif"><img id="gallery__closeButton" style="display: inline; position: absolute; right: 10px; top: 10px; z-index: 80; cursor: pointer;" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/close.gif"><img id="gallery__nextButton" style="display: inline; position: absolute; right: 10px; bottom: 10px; z-index: 80; cursor: pointer;" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/next.gif"><img id="gallery__prevButton" style="display: inline; position: absolute; left: 10px; bottom: 10px; z-index: 80; cursor: pointer;" src="Doma%CC%81ci%CC%81%20u%CC%81loha%20c%CC%8C.%202%20-%20UDP%20Klient%20[BI-PSI%20Poc%CC%8Ci%CC%81tac%CC%8Cove%CC%81%20si%CC%81te%CC%8C]_soubory/prev.gif"><span id="gallery__lightboxCaption" style="display: none; position: absolute; z-index: 80;"></span></div><div id="ui-datepicker-div" class="ui-datepicker ui-widget ui-widget-content ui-helper-clearfix ui-corner-all ui-helper-hidden-accessible"></div><div class="integration-bar" style="display: none; top: 74.3167px; left: 1077px;"><div class="arrow" style="left: 260px;"></div><a class="tile" href="https://timetable.fit.cvut.cz/"><span class="icon"><i class="fa fa-calendar"></i></span><span class="title">Rozvrh</span></a><a class="tile" href="https://ict.fit.cvut.cz/web"><span class="icon"><i class="icon-th"></i></span><span class="title">Informace o ICT</span></a><a class="tile" href="https://imap.fit.cvut.cz/"><span class="icon"><i class="fa fa-envelope"></i></span><span class="title">Webmail</span></a><a class="tile" href="https://kos.cvut.cz/"><span class="icon"><i class="icon-th"></i></span><span class="title">KOmponenta Studium</span></a></div></body></html>
